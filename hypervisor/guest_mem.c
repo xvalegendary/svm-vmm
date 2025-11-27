@@ -42,7 +42,7 @@ PHYSICAL_ADDRESS GuestTranslateGvaToGpa(VCPU* V, UINT64 Gva)
     PHYSICAL_ADDRESS pa = { 0 };
 
     UINT64 cr3_enc = VmcbState(V->Vmcb)->Cr3;
-    UINT64 cr3 = HookDecryptCr3(cr3_enc);
+    UINT64 cr3 = V->Npt.ShadowCr3 ? V->Npt.ShadowCr3 : HookDecryptCr3(cr3_enc);
 
     UINT64 pml4 = cr3 & ~0xFFFULL;
     UINT64 index = (Gva >> 39) & 0x1FF;

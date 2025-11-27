@@ -142,6 +142,9 @@ NTSTATUS HypervisorHandleExit(VCPU* V)
 
     VMCB_CONTROL_AREA* c = VmcbControl(V->Vmcb);
 
+    VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
+    NptUpdateShadowCr3(&V->Npt, HookDecryptCr3(s->Cr3));
+
     UINT64 exit = c->ExitCode;
 
     switch (exit)

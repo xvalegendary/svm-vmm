@@ -71,6 +71,21 @@ static NPT_ENTRY* NptGetEntry(
     return &pt[pt_i];
 }
 
+static BOOLEAN NptReadGuestQword(NPT_STATE* State, UINT64 gpa, UINT64* outValue)
+{
+    PHYSICAL_ADDRESS hpa = NptTranslateGpaToHpa(State, gpa);
+    if (!hpa.QuadPart)
+        return FALSE;
+
+    PVOID mapped = MmMapIoSpace(hpa, sizeof(UINT64), MmNonCached);
+    if (!mapped)
+        return FALSE;
+
+    *outValue = *(volatile UINT64*)mapped;
+    MmUnmapIoSpace(mapped, sizeof(UINT64));
+    return TRUE;
+}
+
 //
 // GPA → HPA
 //
@@ -93,10 +108,55 @@ PHYSICAL_ADDRESS NptTranslateGpaToHpa(NPT_STATE* State, UINT64 gpa)
 //
 PHYSICAL_ADDRESS NptTranslateGvaToHpa(NPT_STATE* State, UINT64 gva)
 {
-    // Этот метод реализуется через guest_mem.c
     PHYSICAL_ADDRESS pa = { 0 };
-    UNREFERENCED_PARAMETER(State);
-    UNREFERENCED_PARAMETER(gva);
+
+    if (!State->ShadowCr3)
+        return pa;
+
+    UINT64 cr3 = State->ShadowCr3 & ~0xFFFULL;
+    UINT64 index = (gva >> 39) & 0x1FF;
+
+    UINT64 pml4e;
+    if (!NptReadGuestQword(State, cr3 + index * sizeof(UINT64), &pml4e) || !(pml4e & PAGE_PRESENT))
+        return pa;
+
+    UINT64 pdpt = pml4e & ~0xFFFULL;
+    index = (gva >> 30) & 0x1FF;
+
+    UINT64 pdpte;
+    if (!NptReadGuestQword(State, pdpt + index * sizeof(UINT64), &pdpte) || !(pdpte & PAGE_PRESENT))
+        return pa;
+
+    if (pdpte & (1ULL << 7))
+    {
+        pa.QuadPart = (pdpte & ~0x3FFFFFFFULL) + (gva & 0x3FFFFFFFULL);
+        pa = NptTranslateGpaToHpa(State, pa.QuadPart);
+        return pa;
+    }
+
+    UINT64 pd = pdpte & ~0xFFFULL;
+    index = (gva >> 21) & 0x1FF;
+
+    UINT64 pde;
+    if (!NptReadGuestQword(State, pd + index * sizeof(UINT64), &pde) || !(pde & PAGE_PRESENT))
+        return pa;
+
+    if (pde & (1ULL << 7))
+    {
+        pa.QuadPart = (pde & ~0x1FFFFFULL) + (gva & 0x1FFFFFULL);
+        pa = NptTranslateGpaToHpa(State, pa.QuadPart);
+        return pa;
+    }
+
+    UINT64 pt = pde & ~0xFFFULL;
+    index = (gva >> 12) & 0x1FF;
+
+    UINT64 pte;
+    if (!NptReadGuestQword(State, pt + index * sizeof(UINT64), &pte) || !(pte & PAGE_PRESENT))
+        return pa;
+
+    pa.QuadPart = (pte & ~0xFFFULL) + (gva & 0xFFFULL);
+    pa = NptTranslateGpaToHpa(State, pa.QuadPart);
     return pa;
 }
 
@@ -116,6 +176,32 @@ BOOLEAN NptHookPage(NPT_STATE* State, UINT64 targetGpaPage, UINT64 newHpaPage)
     entry->Accessed = 1;
 
     return TRUE;
+}
+
+VOID NptUpdateShadowCr3(NPT_STATE* State, UINT64 GuestCr3)
+{
+    State->ShadowCr3 = GuestCr3;
+}
+
+BOOLEAN NptInstallShadowHook(NPT_STATE* State, UINT64 TargetGpa, UINT64 NewHpa)
+{
+    if (!State)
+        return FALSE;
+
+    State->ShadowHook.TargetGpaPage = TargetGpa & ~0xFFFULL;
+    State->ShadowHook.NewHpaPage = NewHpa & ~0xFFFULL;
+    State->ShadowHook.Active = TRUE;
+    return TRUE;
+}
+
+VOID NptClearShadowHook(NPT_STATE* State)
+{
+    if (!State)
+        return;
+
+    State->ShadowHook.Active = FALSE;
+    State->ShadowHook.TargetGpaPage = 0;
+    State->ShadowHook.NewHpaPage = 0;
 }
 
 //
@@ -182,6 +268,8 @@ NTSTATUS NptInitialize(NPT_STATE* State)
             }
         }
     }
+
+    State->ShadowHook.Active = FALSE;
 
     return STATUS_SUCCESS;
 }

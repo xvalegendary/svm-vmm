@@ -150,6 +150,16 @@ UINT64 HookDecryptCr3(UINT64 cr3_enc)
     return cr3_enc ^ g_Cr3XorKey;
 }
 
+VOID HookEnableCr3Encryption()
+{
+    g_Cr3EncryptionEnabled = TRUE;
+}
+
+VOID HookDisableCr3Encryption()
+{
+    g_Cr3EncryptionEnabled = FALSE;
+}
+
 //
 // ================================
 //     NPT / GPA HOOK INTERFACE
@@ -158,15 +168,11 @@ UINT64 HookDecryptCr3(UINT64 cr3_enc)
 
 BOOLEAN HookNptHandleFault(VCPU* V, UINT64 faultingGpa)
 {
-    //
-    // :   guest code    
-    //
-    UINT64 targetPage = 0x1000;      // GPA guest shellcode
-    UINT64 hookPage = 0x90000000;  // HPA with our code
+    UINT64 page = faultingGpa & ~0xFFFULL;
 
-    if ((faultingGpa & ~0xFFFULL) == targetPage)
+    if (V->Npt.ShadowHook.Active && page == V->Npt.ShadowHook.TargetGpaPage)
     {
-        NptHookPage(&V->Npt, targetPage, hookPage);
+        NptHookPage(&V->Npt, page, V->Npt.ShadowHook.NewHpaPage);
         return TRUE;
     }
 
@@ -203,6 +209,27 @@ UINT64 HookVmmcallDispatch(VCPU* V, UINT64 code, UINT64 a1, UINT64 a2, UINT64 a3
         GuestWriteGva(V, a1, &value, sizeof(value));
         return TRUE;
     }
+
+    case 0x102:   // enable CR3 XOR hook
+        HookEnableCr3Encryption();
+        return TRUE;
+
+    case 0x103:   // disable CR3 XOR hook
+        HookDisableCr3Encryption();
+        return TRUE;
+
+    case 0x110:   // install shadow EPT hook (a1 = target GVA, a2 = new HPA/GPA)
+    {
+        PHYSICAL_ADDRESS gpa = GuestTranslateGvaToGpa(V, a1);
+        if (!gpa.QuadPart)
+            return FALSE;
+
+        return NptInstallShadowHook(&V->Npt, gpa.QuadPart, a2);
+    }
+
+    case 0x111:   // clear shadow hook
+        NptClearShadowHook(&V->Npt);
+        return TRUE;
 
     case 0x200:  // stealth mode enable
         StealthEnable();

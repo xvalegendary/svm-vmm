@@ -30,6 +30,15 @@ typedef struct _NPT_STATE
 {
     NPT_ENTRY* Pml4;
     PHYSICAL_ADDRESS Pml4Pa;
+
+    UINT64 ShadowCr3;
+
+    struct
+    {
+        UINT64 TargetGpaPage;
+        UINT64 NewHpaPage;
+        BOOLEAN Active;
+    } ShadowHook;
 } NPT_STATE;
 
 NTSTATUS NptInitialize(NPT_STATE* State);
@@ -38,3 +47,6 @@ VOID NptDestroy(NPT_STATE* State);
 PHYSICAL_ADDRESS NptTranslateGvaToHpa(NPT_STATE* State, UINT64 Gva);
 PHYSICAL_ADDRESS NptTranslateGpaToHpa(NPT_STATE* State, UINT64 Gpa);
 BOOLEAN NptHookPage(NPT_STATE* State, UINT64 GuestPhysical, UINT64 NewHostPhysical);
+VOID NptUpdateShadowCr3(NPT_STATE* State, UINT64 GuestCr3);
+BOOLEAN NptInstallShadowHook(NPT_STATE* State, UINT64 TargetGpa, UINT64 NewHpa);
+VOID NptClearShadowHook(NPT_STATE* State);

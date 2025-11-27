@@ -76,6 +76,8 @@ static VOID SetupGuest(VCPU* V)
     st->Cr4 = __readcr4();
 
     st->Efer = MsrRead(MSR_EFER);
+
+    NptUpdateShadowCr3(&V->Npt, st->Cr3);
 }
 
 static VOID SetupControls(VCPU* V)

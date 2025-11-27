@@ -17,6 +17,8 @@ VOID HookRemoveSyscall();
 // CR3 encryption/decryption
 UINT64 HookEncryptCr3(UINT64 cr3);
 UINT64 HookDecryptCr3(UINT64 cr3_enc);
+VOID HookEnableCr3Encryption();
+VOID HookDisableCr3Encryption();
 
 // NPT helpers
 BOOLEAN HookNptHandleFault(VCPU* V, UINT64 faultingGpa);

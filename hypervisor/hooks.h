@@ -16,7 +16,7 @@ VOID HookRemoveSyscall();
 
 // CR3 encryption/decryption
 UINT64 HookEncryptCr3(UINT64 cr3);
-UINT64 HookDecryptCr3(UINT64 cr3_enc);
+UINT64 HookDecryptCr3(struct _VCPU* V, UINT64 cr3_enc);
 VOID HookEnableCr3Encryption();
 VOID HookDisableCr3Encryption();
 

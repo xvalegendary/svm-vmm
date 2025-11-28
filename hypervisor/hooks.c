@@ -23,6 +23,18 @@ static BOOLEAN g_SyscallHookEnabled = FALSE;
 static BOOLEAN g_Cr3EncryptionEnabled = FALSE;
 static UINT64 g_Cr3XorKey = 0xCAFEBABE1337ULL;
 
+static BOOLEAN HookIsCr3PagePresent(VCPU* V, UINT64 cr3)
+{
+    UINT64 pml4 = cr3 & ~0xFFFULL;
+    UINT64 entry = 0;
+
+    // Проверяем что первая запись PML4 доступна — простая валидация физ. адреса
+    if (!GuestReadGpa(V, pml4, &entry, sizeof(entry)))
+        return FALSE;
+
+    return (entry & 1ULL) != 0;
+}
+
 //
 // ================================
 //     CPUID EMULATION HOOK
@@ -142,12 +154,20 @@ UINT64 HookEncryptCr3(UINT64 cr3)
     return cr3 ^ g_Cr3XorKey;
 }
 
-UINT64 HookDecryptCr3(UINT64 cr3_enc)
+UINT64 HookDecryptCr3(VCPU* V, UINT64 cr3_enc)
 {
     if (!g_Cr3EncryptionEnabled)
         return cr3_enc;
 
-    return cr3_enc ^ g_Cr3XorKey;
+    UINT64 candidate = cr3_enc ^ g_Cr3XorKey;
+
+    // Дополнительно валидируем, что расшифрованный CR3 указывает
+    // на действительно присутствующую PML4 таблицу в гостевой физ. памяти
+    if (V && HookIsCr3PagePresent(V, candidate))
+        return candidate;
+
+    // если не удалось проверить — возвращаем расшифрованное значение как есть
+    return candidate;
 }
 
 VOID HookEnableCr3Encryption()

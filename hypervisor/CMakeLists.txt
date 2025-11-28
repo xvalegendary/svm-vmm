@@ -1,44 +1,46 @@
-cmake_minimum_required(VERSION 3.27)
+cmake_minimum_required(VERSION 3.10)
+
+project(hypervisor LANGUAGES C ASM_MASM)
 
 if(NOT MSVC)
-    message(FATAL_ERROR "This project builds a Windows kernel driver and requires the MSVC toolchain.")
+    message(FATAL_ERROR "MSVC compiler required.")
 endif()
 
-enable_language(ASM_MASM)
+# -----------------------------------------
+#   FIXED WINDOWS SDK PATH (YOUR SYSTEM)
+# -----------------------------------------
 
-set(CMAKE_C_STANDARD 17)
-set(CMAKE_C_STANDARD_REQUIRED ON)
-set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+# Your SDK version:
+set(SDK_VERSION "10.0.26100.0")
 
-# Infer the SDK/WDK layout from the generator settings.
-if(NOT DEFINED CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION)
-    message(FATAL_ERROR "A Windows 10 SDK is required. Set CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION when configuring.")
+# Your SDK root:
+set(SDK_ROOT "C:/Program Files (x86)/Windows Kits/10")
+
+set(WDK_INCLUDE_DIR "${SDK_ROOT}/Include/${SDK_VERSION}")
+set(WDK_LIB_DIR     "${SDK_ROOT}/Lib/${SDK_VERSION}")
+
+if(NOT EXISTS "${WDK_INCLUDE_DIR}/km")
+    message(FATAL_ERROR "WDK headers not found in: ${WDK_INCLUDE_DIR}/km")
 endif()
 
-set(WDK_VERSION "${CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION}")
-# The VS variable sometimes ends with a trailing dot. Strip it so the path resolves correctly.
-if(WDK_VERSION MATCHES "\\.$")
-    string(SUBSTRING "${WDK_VERSION}" 0 -1 WDK_VERSION)
-endif()
+message(STATUS "Using SDK version: ${SDK_VERSION}")
+message(STATUS "Using WDK include: ${WDK_INCLUDE_DIR}")
+message(STATUS "Using WDK lib: ${WDK_LIB_DIR}")
 
-set(WDK_ROOT "$ENV{WDKContentRoot}")
-if(NOT WDK_ROOT)
-    set(WDK_ROOT "$ENV{ProgramFiles(x86)}/Windows Kits/10")
-endif()
+# -----------------------------------------
+#   ARCHITECTURE
+# -----------------------------------------
 
-set(WDK_INCLUDE_DIR "${WDK_ROOT}/Include/${WDK_VERSION}")
-set(WDK_LIB_DIR "${WDK_ROOT}/Lib/${WDK_VERSION}")
-
-if(NOT EXISTS "${WDK_INCLUDE_DIR}" OR NOT EXISTS "${WDK_LIB_DIR}")
-    message(FATAL_ERROR "Could not find WDK/SDK headers and libraries under ${WDK_ROOT} for version ${WDK_VERSION}.")
-endif()
-
-# Choose the correct library architecture folder (x64 or ARM64).
-set(DRIVER_ARCH "${CMAKE_VS_PLATFORM_NAME}")
-if(NOT DRIVER_ARCH)
+if(CMAKE_VS_PLATFORM_NAME)
+    set(DRIVER_ARCH "${CMAKE_VS_PLATFORM_NAME}")
+else()
     set(DRIVER_ARCH "x64")
 endif()
 string(TOLOWER "${DRIVER_ARCH}" DRIVER_ARCH)
+
+# -----------------------------------------
+#   SOURCE FILES
+# -----------------------------------------
 
 set(SOURCES
     driver.c
@@ -54,7 +56,14 @@ set(SOURCES
     vmrun.asm
 )
 
+# -----------------------------------------
+#   DRIVER BUILD (.sys)
+# -----------------------------------------
+
 add_library(hypervisor SHARED ${SOURCES})
+
+
+
 set_target_properties(hypervisor PROPERTIES
     OUTPUT_NAME "hypervisor"
     SUFFIX ".sys"
@@ -66,9 +75,13 @@ target_include_directories(hypervisor PRIVATE
     "${WDK_INCLUDE_DIR}/shared"
 )
 
-target_compile_definitions(hypervisor PRIVATE _AMD64_ _X64_ WIN64)
+target_compile_definitions(hypervisor PRIVATE
+    _AMD64_ _X64_ WIN64
+)
 
-target_link_directories(hypervisor PRIVATE "${WDK_LIB_DIR}/km/${DRIVER_ARCH}")
+target_link_directories(hypervisor PRIVATE
+    "${WDK_LIB_DIR}/km/${DRIVER_ARCH}"
+)
 
 target_link_libraries(hypervisor
     ntoskrnl.lib
@@ -76,8 +89,8 @@ target_link_libraries(hypervisor
 )
 
 target_link_options(hypervisor PRIVATE
-    /SUBSYSTEM:NATIVE
     /DRIVER
+    /SUBSYSTEM:NATIVE
     /ENTRY:DriverEntry
     /NODEFAULTLIB
     /MANIFEST:NO

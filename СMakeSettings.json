@@ -1,0 +1,6 @@
+"variables": [
+  {
+    "name": "CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION",
+    "value": "10.0.22621.0"
+  }
+]

@@ -18,5 +18,24 @@ typedef struct _VCPU
 
     UINT64 HostCr3;
 
+    // Execution layer bookkeeping
+    struct
+    {
+        UINT64 ExitCount;
+        UINT64 LastExitCode;
+        UINT64 ExitBudget;
+    } Exec;
+
+    // IPC-style mailbox (APIC/ACPI/MMIO-backed)
+    struct
+    {
+        UINT64 MailboxGpa;
+        UINT64 LastMessage;
+        BOOLEAN Active;
+    } Ipc;
+
+    // TSC cloaking offset
+    UINT64 CloakedTscOffset;
+
     BOOLEAN Active;
 } VCPU;

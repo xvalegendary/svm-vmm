@@ -70,7 +70,7 @@ UINT64 HookHandleMsrRead(VCPU* V, UINT64 msr)
         return g_OriginalSfMask;
 
     default:
-        return __readmsr(msr);
+        return StealthMaskMsrRead((UINT32)msr, __readmsr(msr));
     }
 }
 

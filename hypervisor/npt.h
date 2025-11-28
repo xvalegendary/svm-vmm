@@ -33,6 +33,28 @@ typedef struct _NPT_STATE
 
     UINT64 ShadowCr3;
 
+    // Shadow EPT / hardware entry triggers
+    struct
+    {
+        UINT64 GpaPage;
+        UINT64 OriginalPageFrame;
+        BOOLEAN Armed;
+        BOOLEAN UsingFakePage;
+    } Apic, Acpi, Smm, Mmio;
+
+    // Mailbox surface (MMIO/APIC backed)
+    struct
+    {
+        UINT64 GpaPage;
+        UINT64 LastMessage;
+        BOOLEAN Active;
+    } Mailbox;
+
+    // double-spaced fake backing to shuffle hidden memory views
+    PVOID FakePageVa[2];
+    PHYSICAL_ADDRESS FakePagePa[2];
+    ULONG FakePageIndex;
+
     struct
     {
         UINT64 TargetGpaPage;
@@ -50,3 +72,8 @@ BOOLEAN NptHookPage(NPT_STATE* State, UINT64 GuestPhysical, UINT64 NewHostPhysic
 VOID NptUpdateShadowCr3(NPT_STATE* State, UINT64 GuestCr3);
 BOOLEAN NptInstallShadowHook(NPT_STATE* State, UINT64 TargetGpa, UINT64 NewHpa);
 VOID NptClearShadowHook(NPT_STATE* State);
+
+// Hardware entry + cloaked EPT helpers
+BOOLEAN NptSetupHardwareTriggers(NPT_STATE* State, UINT64 apicGpa, UINT64 acpiGpa, UINT64 smmGpa, UINT64 mmioGpa);
+BOOLEAN NptHandleHardwareTriggers(NPT_STATE* State, UINT64 faultGpa, UINT64* mailboxValue);
+VOID NptRearmHardwareTriggers(NPT_STATE* State);

@@ -86,6 +86,25 @@ static BOOLEAN NptReadGuestQword(NPT_STATE* State, UINT64 gpa, UINT64* outValue)
     return TRUE;
 }
 
+static VOID NptProtectPageForTrap(NPT_STATE* State, UINT64 gpa, NPT_ENTRY* entry,
+    UINT64* originalFrame,
+    BOOLEAN arm)
+{
+    if (!entry)
+        return;
+
+    if (arm)
+    {
+        *originalFrame = entry->PageFrame;
+        entry->Present = 0; // force NPF on first touch
+    }
+    else
+    {
+        entry->PageFrame = *originalFrame;
+        entry->Present = 1;
+    }
+}
+
 //
 // GPA → HPA
 //
@@ -183,6 +202,173 @@ VOID NptUpdateShadowCr3(NPT_STATE* State, UINT64 GuestCr3)
     State->ShadowCr3 = GuestCr3;
 }
 
+static BOOLEAN NptArmTrap(NPT_STATE* State, UINT64 gpa, NPT_ENTRY* entry,
+    UINT64* originalFrame,
+    BOOLEAN* armed)
+{
+    if (!entry)
+        return FALSE;
+
+    NptProtectPageForTrap(State, gpa, entry, originalFrame, TRUE);
+    *armed = TRUE;
+    return TRUE;
+}
+
+static BOOLEAN NptPromoteTrapToFake(NPT_STATE* State, NPT_ENTRY* entry)
+{
+    if (!entry)
+        return FALSE;
+
+    ULONG slot = State->FakePageIndex & 1;
+    PHYSICAL_ADDRESS fakePa = State->FakePagePa[slot];
+    if (!fakePa.QuadPart)
+        return FALSE;
+
+    entry->PageFrame = fakePa.QuadPart >> 12;
+    entry->Present = 1;
+    entry->Write = 1;
+    entry->Accessed = 1;
+    entry->Dirty = 1;
+
+    State->FakePageIndex ^= 1; // alternate between the two fake pages
+    return TRUE;
+}
+
+static BOOLEAN NptHandleSingleTrigger(NPT_STATE* State,
+    UINT64 gpa,
+    NPT_ENTRY* entry,
+    UINT64* originalFrame,
+    BOOLEAN* armed,
+    BOOLEAN* usingFake,
+    UINT64* mailboxValue)
+{
+    if (!*armed || !entry)
+        return FALSE;
+
+    if ((gpa & ~0xFFFULL) != (entry->PageFrame << 12) && entry->Present)
+    {
+        // re-arm later when backing is restored
+        return FALSE;
+    }
+
+    if (!*usingFake)
+    {
+        *usingFake = NptPromoteTrapToFake(State, entry);
+        *armed = FALSE;
+        if (mailboxValue)
+            *mailboxValue = gpa;
+        return *usingFake;
+    }
+
+    return FALSE;
+}
+
+BOOLEAN NptSetupHardwareTriggers(NPT_STATE* State, UINT64 apicGpa, UINT64 acpiGpa, UINT64 smmGpa, UINT64 mmioGpa)
+{
+    UINT64 level;
+
+    NPT_ENTRY* apic = NptGetEntry(State, apicGpa, &level);
+    NPT_ENTRY* acpi = NptGetEntry(State, acpiGpa, &level);
+    NPT_ENTRY* smm = NptGetEntry(State, smmGpa, &level);
+    NPT_ENTRY* mmio = NptGetEntry(State, mmioGpa, &level);
+
+    BOOLEAN ok = TRUE;
+    ok &= NptArmTrap(State, apicGpa, apic, &State->Apic.OriginalPageFrame, &State->Apic.Armed);
+    ok &= NptArmTrap(State, acpiGpa, acpi, &State->Acpi.OriginalPageFrame, &State->Acpi.Armed);
+    ok &= NptArmTrap(State, smmGpa, smm, &State->Smm.OriginalPageFrame, &State->Smm.Armed);
+    ok &= NptArmTrap(State, mmioGpa, mmio, &State->Mmio.OriginalPageFrame, &State->Mmio.Armed);
+
+    State->Apic.GpaPage = apicGpa & ~0xFFFULL;
+    State->Acpi.GpaPage = acpiGpa & ~0xFFFULL;
+    State->Smm.GpaPage = smmGpa & ~0xFFFULL;
+    State->Mmio.GpaPage = mmioGpa & ~0xFFFULL;
+
+    State->Apic.UsingFakePage = FALSE;
+    State->Acpi.UsingFakePage = FALSE;
+    State->Smm.UsingFakePage = FALSE;
+    State->Mmio.UsingFakePage = FALSE;
+
+    State->Mailbox.GpaPage = apicGpa & ~0xFFFULL;
+    State->Mailbox.Active = TRUE;
+    State->Mailbox.LastMessage = 0;
+
+    return ok;
+}
+
+BOOLEAN NptHandleHardwareTriggers(NPT_STATE* State, UINT64 faultGpa, UINT64* mailboxValue)
+{
+    UINT64 level;
+
+    NPT_ENTRY* apic = NptGetEntry(State, State->Apic.GpaPage, &level);
+    NPT_ENTRY* acpi = NptGetEntry(State, State->Acpi.GpaPage, &level);
+    NPT_ENTRY* smm = NptGetEntry(State, State->Smm.GpaPage, &level);
+    NPT_ENTRY* mmio = NptGetEntry(State, State->Mmio.GpaPage, &level);
+
+    if (NptHandleSingleTrigger(State, faultGpa, apic, &State->Apic.OriginalPageFrame, &State->Apic.Armed, &State->Apic.UsingFakePage, mailboxValue))
+        return TRUE;
+    if (NptHandleSingleTrigger(State, faultGpa, acpi, &State->Acpi.OriginalPageFrame, &State->Acpi.Armed, &State->Acpi.UsingFakePage, mailboxValue))
+        return TRUE;
+    if (NptHandleSingleTrigger(State, faultGpa, smm, &State->Smm.OriginalPageFrame, &State->Smm.Armed, &State->Smm.UsingFakePage, mailboxValue))
+        return TRUE;
+    if (NptHandleSingleTrigger(State, faultGpa, mmio, &State->Mmio.OriginalPageFrame, &State->Mmio.Armed, &State->Mmio.UsingFakePage, mailboxValue))
+        return TRUE;
+
+    return FALSE;
+}
+
+VOID NptRearmHardwareTriggers(NPT_STATE* State)
+{
+    UINT64 level;
+    NPT_ENTRY* apic = NptGetEntry(State, State->Apic.GpaPage, &level);
+    NPT_ENTRY* acpi = NptGetEntry(State, State->Acpi.GpaPage, &level);
+    NPT_ENTRY* smm = NptGetEntry(State, State->Smm.GpaPage, &level);
+    NPT_ENTRY* mmio = NptGetEntry(State, State->Mmio.GpaPage, &level);
+
+    if (State->Apic.UsingFakePage)
+    {
+        if (apic)
+        {
+            apic->PageFrame = State->Apic.OriginalPageFrame;
+            apic->Present = 0;
+        }
+        State->Apic.UsingFakePage = FALSE;
+        State->Apic.Armed = TRUE;
+    }
+
+    if (State->Acpi.UsingFakePage)
+    {
+        if (acpi)
+        {
+            acpi->PageFrame = State->Acpi.OriginalPageFrame;
+            acpi->Present = 0;
+        }
+        State->Acpi.UsingFakePage = FALSE;
+        State->Acpi.Armed = TRUE;
+    }
+
+    if (State->Smm.UsingFakePage)
+    {
+        if (smm)
+        {
+            smm->PageFrame = State->Smm.OriginalPageFrame;
+            smm->Present = 0;
+        }
+        State->Smm.UsingFakePage = FALSE;
+        State->Smm.Armed = TRUE;
+    }
+
+    if (State->Mmio.UsingFakePage)
+    {
+        if (mmio)
+        {
+            mmio->PageFrame = State->Mmio.OriginalPageFrame;
+            mmio->Present = 0;
+        }
+        State->Mmio.UsingFakePage = FALSE;
+        State->Mmio.Armed = TRUE;
+    }
+}
+
 BOOLEAN NptInstallShadowHook(NPT_STATE* State, UINT64 TargetGpa, UINT64 NewHpa)
 {
     if (!State)
@@ -211,6 +397,26 @@ NTSTATUS NptInitialize(NPT_STATE* State)
 {
     if (!State) return STATUS_INVALID_PARAMETER;
     RtlZeroMemory(State, sizeof(*State));
+
+    for (ULONG i = 0; i < 2; i++)
+    {
+        State->FakePageVa[i] = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'pfsh');
+        if (!State->FakePageVa[i])
+        {
+            for (ULONG j = 0; j < i; j++)
+            {
+                ExFreePoolWithTag(State->FakePageVa[j], 'pfsh');
+                State->FakePageVa[j] = NULL;
+                State->FakePagePa[j].QuadPart = 0;
+            }
+            return STATUS_INSUFFICIENT_RESOURCES;
+        }
+
+        RtlZeroMemory(State->FakePageVa[i], PAGE_SIZE);
+        State->FakePagePa[i] = MmGetPhysicalAddress(State->FakePageVa[i]);
+    }
+
+    State->FakePageIndex = 0;
 
     PHYSICAL_ADDRESS paPml4;
     NPT_ENTRY* pml4 = NptAllocTable(&paPml4);
@@ -279,8 +485,13 @@ NTSTATUS NptInitialize(NPT_STATE* State)
 //
 VOID NptDestroy(NPT_STATE* State)
 {
-    // В данном минимальном варианте ничего не освобождаем,
-    // но при необходимости можно рекурсивно free всех таблиц.
-    UNREFERENCED_PARAMETER(State);
+    if (!State)
+        return;
+
+    for (ULONG i = 0; i < 2; i++)
+    {
+        if (State->FakePageVa[i])
+            ExFreePoolWithTag(State->FakePageVa[i], 'pfsh');
+    }
 }
 

@@ -4,6 +4,7 @@
 #include "msr.h"
 #include "vmcb.h"
 #include "npt.h"
+#include "layers.h"
 
 extern VOID VmrunAsm(UINT64 VmcbPa);
 extern VOID GuestEntry();
@@ -125,6 +126,8 @@ NTSTATUS SvmInit(VCPU** Out)
 
     SetupGuest(V);
     SetupControls(V);
+
+    HvActivateLayeredPipeline(V);
 
     *Out = V;
     return STATUS_SUCCESS;

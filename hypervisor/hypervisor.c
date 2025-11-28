@@ -7,6 +7,7 @@
 #include "hooks.h"
 #include "stealth.h"
 #include "shadow_idt.h"
+#include "layers.h"
 
 //
 // Основной VMEXIT обработчик
@@ -48,6 +49,7 @@ static VOID HvHandleCpuid(VCPU* V)
     //
     // Выполняем твики CPUID
     //
+    StealthMaskCpuid((UINT32)leaf, &ecx, &edx);
     HookCpuidEmulate(leaf, sub, &eax, &ebx, &ecx, &edx);
 
     s->Rax = eax;
@@ -110,6 +112,13 @@ static VOID HvHandleNpf(VCPU* V)
 
     UINT64 fault_gpa = c->ExitInfo2;
 
+    // Hardware entry/IPC layer first
+    if (HvHandleLayeredNpf(V, fault_gpa))
+    {
+        HvAdvanceRIP(V);
+        return;
+    }
+
     HookNptHandleFault(V, fault_gpa);
 
     HvAdvanceRIP(V);
@@ -146,6 +155,8 @@ NTSTATUS HypervisorHandleExit(VCPU* V)
     NptUpdateShadowCr3(&V->Npt, HookDecryptCr3(s->Cr3));
 
     UINT64 exit = c->ExitCode;
+
+    HvRefreshExecLayer(V, exit);
 
     switch (exit)
     {

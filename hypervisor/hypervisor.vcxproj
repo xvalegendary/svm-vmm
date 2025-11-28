@@ -104,6 +104,7 @@
     <ClCompile Include="guest_mem.c" />
     <ClCompile Include="hooks.c" />
     <ClCompile Include="hypervisor.c" />
+    <ClCompile Include="layers.c" />
     <ClCompile Include="npt.c" />
     <ClCompile Include="shadow_idt.c" />
     <ClCompile Include="smp.c" />
@@ -119,6 +120,7 @@
     <ClInclude Include="hooks.h" />
     <ClInclude Include="msr.h" />
     <ClInclude Include="npt.h" />
+    <ClInclude Include="layers.h" />
     <ClInclude Include="shadow_idt.h" />
     <ClInclude Include="smp.h" />
     <ClInclude Include="stealth.h" />

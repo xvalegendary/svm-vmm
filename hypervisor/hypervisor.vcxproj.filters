@@ -43,6 +43,9 @@
     <ClCompile Include="shadow_idt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="layers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="vmrun.asm">
@@ -75,6 +78,9 @@
       <Filter>Source Files\Include</Filter>
     </ClInclude>
     <ClInclude Include="shadow_idt.h">
+      <Filter>Source Files\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="layers.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
   </ItemGroup>

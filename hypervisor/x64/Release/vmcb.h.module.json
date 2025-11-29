@@ -5,14 +5,14 @@
         {
             "primary-output": "x64\\Release\\vmcb.h.obj",
             "outputs": [
-                "D:\\WindowsDrivers\\svm-vmm\\hypervisor\\x64\\Release\\vc143.pdb",
+                "C:\\Users\\stark\\OneDrive\\Рабочий стол\\svm-vmm\\hypervisor\\x64\\Release\\vc143.pdb",
                 "x64\\Release\\",
-                "D:\\WindowsDrivers\\svm-vmm\\hypervisor\\x64\\Release\\vmcb.h.ifc"
+                "C:\\Users\\stark\\OneDrive\\Рабочий стол\\svm-vmm\\hypervisor\\x64\\Release\\vmcb.h.ifc"
             ],
             "provides": [
                 {
                     "logical-name": "vmcb.h",
-                    "source-path": "d:\\windowsdrivers\\svm-vmm\\hypervisor\\vmcb.h",
+                    "source-path": "c:\\users\\stark\\onedrive\\рабочий стол\\svm-vmm\\hypervisor\\vmcb.h",
                     "lookup-method": "absolute"
                 }
             ],

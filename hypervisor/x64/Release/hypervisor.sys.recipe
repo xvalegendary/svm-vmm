@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>D:\WindowsDrivers\svm-vmm\x64\Release\hypervisor.sys</FullPath>
+      <FullPath>C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\x64\Release\hypervisor.sys</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

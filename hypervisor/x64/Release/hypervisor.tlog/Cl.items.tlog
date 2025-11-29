@@ -1,5 +1,10 @@
-D:\WindowsDrivers\svm-vmm\hypervisor\driver.c;D:\WindowsDrivers\svm-vmm\hypervisor\x64\Release\driver.obj
-D:\WindowsDrivers\svm-vmm\hypervisor\hypervisor.c;D:\WindowsDrivers\svm-vmm\hypervisor\x64\Release\hypervisor.obj
-D:\WindowsDrivers\svm-vmm\hypervisor\npt.c;D:\WindowsDrivers\svm-vmm\hypervisor\x64\Release\npt.obj
-D:\WindowsDrivers\svm-vmm\hypervisor\svm.c;D:\WindowsDrivers\svm-vmm\hypervisor\x64\Release\svm.obj
-D:\WindowsDrivers\svm-vmm\hypervisor\vmcb.h;D:\WindowsDrivers\svm-vmm\hypervisor\x64\Release\vmcb.h.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\driver.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\driver.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\guest_mem.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\guest_mem.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\hooks.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\hooks.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\hypervisor.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\hypervisor.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\layers.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\layers.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\npt.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\npt.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\shadow_idt.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\shadow_idt.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\smp.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\smp.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\stealth.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\stealth.obj
+C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\svm.c;C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\hypervisor\x64\Release\svm.obj

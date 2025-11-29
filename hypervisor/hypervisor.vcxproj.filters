@@ -79,4 +79,7 @@
       <Filter>Source Files\Include</Filter>
     </ClInclude>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="hypervisor.inf" />
+  </ItemGroup>
 </Project>

@@ -1,29 +1,31 @@
-;
-; hypervisor.inf
-;
-
 [Version]
 Signature="$WINDOWS NT$"
 Class=System
-ClassGuid={4d36e97d-e325-11ce-bfc1-08002be10318}
+ClassGuid={4D36E97D-E325-11CE-BFC1-08002BE10318}
 Provider=%ManufacturerName%
-DriverVer=
+DriverVer=01/01/2025,1.0.0.0
 CatalogFile=hypervisor.cat
-PnpLockdown=1
 
 [DestinationDirs]
-DefaultDestDir = 13
-
-[SourceDisksNames]
-1 = %DiskName%,,,""
-
-[SourceDisksFiles]
+DefaultDestDir = 12 ; system32\drivers
 
 [Manufacturer]
-%ManufacturerName%=Standard,NT$ARCH$.10.0...16299 ; %13% support introduced in build 16299
+%ManufacturerName% = Hypervisor,NTamd64
 
-[Standard.NT$ARCH$.10.0...16299]
+[Hypervisor.NTamd64]
+%DeviceName% = InstallSection, Root\HYPERVISORDRV
 
-[Strings]
-ManufacturerName="<Your manufacturer name>" ;TODO: Replace with your manufacturer name
-DiskName="hypervisor Source Disk"
+[InstallSection]
+CopyFiles = DriverCopyFiles
+AddReg    = ServiceAddReg
+
+[DriverCopyFiles]
+hypervisor.sys
+
+[ServiceAddReg]
+HKR, , "ImagePath",    0x00020000, "%12%\\hypervisor.sys"
+HKR, , "Type",         0x00010001, 1
+HKR, , "Start",        0x00010001, 3
+HKR, , "ErrorControl", 0x00010001, 1
+
+

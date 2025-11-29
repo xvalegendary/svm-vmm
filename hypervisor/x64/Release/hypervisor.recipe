@@ -2,7 +2,7 @@
 <Project>
   <ProjectOutputs>
     <ProjectOutput>
-      <FullPath>C:\Users\stark\Рабочий стол\hypervisor\x64\Release\hypervisor</FullPath>
+      <FullPath>C:\Users\stark\OneDrive\Рабочий стол\svm-vmm\x64\Release\hypervisor</FullPath>
     </ProjectOutput>
   </ProjectOutputs>
   <ContentFiles />

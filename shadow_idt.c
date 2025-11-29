@@ -27,6 +27,8 @@ typedef struct _IDTR
 #pragma pack(pop)
 
 
+VCPU* g_CurrentVcpu = NULL;
+
 static IDT_ENTRY g_ShadowIdt[256];
 static IDTR      g_ShadowIdtr;
 
@@ -93,6 +95,8 @@ VOID ShadowIdtInitialize(VCPU* V)
 {
     RtlZeroMemory(g_ShadowIdt, sizeof(g_ShadowIdt));
     RtlZeroMemory(&g_ShadowIdtr, sizeof(g_ShadowIdtr));
+
+    g_CurrentVcpu = V;
 
     //
     // -> asm handler

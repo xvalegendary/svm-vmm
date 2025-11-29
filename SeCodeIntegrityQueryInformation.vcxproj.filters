@@ -25,6 +25,9 @@
     <ClCompile Include="driver.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="communication.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="guest_mem.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -40,6 +43,9 @@
     <ClCompile Include="npt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="process_manager.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="shadow_idt.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -52,8 +58,14 @@
     <ClCompile Include="svm.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="translator.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="communication.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="guest_mem.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -66,6 +78,9 @@
     <ClInclude Include="msr.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="process_manager.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
     <ClInclude Include="npt.h">
       <Filter>Source Files</Filter>
     </ClInclude>
@@ -76,6 +91,9 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="stealth.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="translator.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="svm.h">

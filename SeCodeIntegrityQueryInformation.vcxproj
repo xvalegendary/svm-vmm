@@ -125,32 +125,40 @@
     <FilesToPackage Include="$(TargetPath)" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="communication.c" />
     <ClCompile Include="driver.c" />
     <ClCompile Include="guest_mem.c" />
     <ClCompile Include="hooks.c" />
     <ClCompile Include="hypervisor.c" />
     <ClCompile Include="layers.c" />
     <ClCompile Include="npt.c" />
+    <ClCompile Include="process_manager.c" />
     <ClCompile Include="shadow_idt.c" />
     <ClCompile Include="smp.c" />
     <ClCompile Include="stealth.c" />
     <ClCompile Include="svm.c" />
+    <ClCompile Include="translator.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="communication.h" />
     <ClInclude Include="guest_mem.h" />
     <ClInclude Include="hooks.h" />
     <ClInclude Include="layers.h" />
     <ClInclude Include="msr.h" />
+    <ClInclude Include="process_manager.h" />
     <ClInclude Include="npt.h" />
     <ClInclude Include="shadow_idt.h" />
     <ClInclude Include="smp.h" />
     <ClInclude Include="stealth.h" />
+    <ClInclude Include="translator.h" />
     <ClInclude Include="svm.h" />
     <ClInclude Include="vcpu.h" />
     <ClInclude Include="vmcb.h" />
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="shadow_idt.asm" />
+    <MASM Include="shadow_idt.asm">
+      <ObjectFileName>$(IntDir)shadow_idt_asm.obj</ObjectFileName>
+    </MASM>
     <MASM Include="vmrun.asm" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

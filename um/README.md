@@ -1,34 +1,41 @@
-# User-mode hypercall sample
+# user-mode hypercall playground
 
-A minimal Windows user-mode program that exercises the VMMCALL interface
-implemented by `HookVmmcallDispatch` in the SVM hypervisor. The sample shows
-how to query the ntoskrnl.exe base address and CR3 (directory table base) for
-the System process using hypercalls.
+expanded windows user-mode program that exercises the vmmcall interface
+implemented by `HookVmmcallDispatch` in the svm hypervisor. the sample
+queries kernel base addresses, directory table base values, and basic
+address translations while keeping all naming lower-case for readability.
 
-## Building
+## building
 
-From a Visual Studio x64 Native Tools command prompt, run:
+1. open `SeCodeIntegrityQueryInformation.sln` in visual studio.
+2. choose the x64 configuration.
+3. build the solution. the hypervisor driver and the `um` console target
+   will be produced side-by-side.
+
+if you prefer the command line, run from a visual studio x64 native tools
+prompt:
 
 ```cmd
-ml64 /c hypercall.asm
-cl /nologo /W4 /EHsc main.c hypercall.obj /link /out:um_demo.exe
+msbuild SeCodeIntegrityQueryInformation.sln /p:Configuration=Release /p:Platform=x64
 ```
 
-Run the resulting `um_demo.exe` after the hypervisor driver has been loaded so
-that the `VMMCALL` instruction is intercepted by the hypervisor.
+run the resulting `um_demo.exe` (from the `um` project) after the
+hypervisor driver has been loaded so the `vmmcall` instruction is
+intercepted.
 
-## What it does
+## what it does
 
-The demo performs the following hypercalls:
+this demo issues several hypercalls:
 
-- Fetches the CPUID vendor string for a quick sanity check.
-- Queries the current process image base (0x320).
-- Queries the System (PID 4) process image base, which corresponds to
-  `ntoskrnl.exe` in typical Windows builds (0x321).
-- Queries the System process directory-table base/CR3 value (0x322).
-- Translates the module base of the current process from guest virtual to host
-  physical address (0x221).
+- fetches the cpuid vendor string for a quick sanity check.
+- queries the current process image base.
+- queries the system (pid 4) process image base, which maps to
+  `ntoskrnl.exe` in typical windows builds.
+- queries the system process directory-table base / cr3 value.
+- translates the image base of the current process and `ntdll.dll` from
+  guest virtual address to host physical address.
+- probes the mailbox and stealth toggles exposed by the hypervisor.
 
-Each request uses the same `HvVmCall` entry point defined in `hypercall.asm` to
-map the Windows x64 calling convention to the register layout the hypervisor
-expects.
+each request uses the same `hv_vmcall` entry point defined in
+`hypercall.asm` to map the windows x64 calling convention to the register
+layout the hypervisor expects.

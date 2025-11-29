@@ -2,64 +2,91 @@
 #include <intrin.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <string.h>
 
 #include "hypercall.h"
 
-static uint64_t SafeVmCall(uint64_t code, uint64_t arg1, uint64_t arg2, uint64_t arg3)
-{
-    __try
-    {
-        return HvVmCall(code, arg1, arg2, arg3);
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-        printf("[!] VMMCALL 0x%llx faulted with 0x%08X\n", code, GetExceptionCode());
+static uint64_t safe_vmcall(uint64_t code, uint64_t arg1, uint64_t arg2, uint64_t arg3) {
+    __try {
+        return hv_vmcall(code, arg1, arg2, arg3);
+    } __except (EXCEPTION_EXECUTE_HANDLER) {
+        printf("[!] vmmcall 0x%llx faulted with 0x%08X\n", code, GetExceptionCode());
         return 0;
     }
 }
 
-static void PrintVendorString(void)
-{
-    int cpuInfo[4] = { 0 };
-    __cpuid(cpuInfo, 0);
+static void print_vendor_string(void) {
+    int cpu_info[4] = {0};
+    __cpuid(cpu_info, 0);
 
-    char vendor[13] = { 0 };
-    memcpy(vendor + 0, &cpuInfo[1], 4); // ebx
-    memcpy(vendor + 4, &cpuInfo[3], 4); // edx
-    memcpy(vendor + 8, &cpuInfo[2], 4); // ecx
+    char vendor[13] = {0};
+    memcpy(vendor + 0, &cpu_info[1], 4); // ebx
+    memcpy(vendor + 4, &cpu_info[3], 4); // edx
+    memcpy(vendor + 8, &cpu_info[2], 4); // ecx
 
-    printf("[+] CPUID vendor: %s\n", vendor);
+    printf("[+] cpuid vendor     : %s\n", vendor);
+    printf("[+] cpuid max leaf   : 0x%x\n", cpu_info[0]);
 }
 
-static void DumpProcessInfo(void)
-{
-    uint64_t currentBase = SafeVmCall(HV_VMCALL_QUERY_CURRENT_PROCESS_BASE, 0, 0, 0);
-    uint64_t systemBase = SafeVmCall(HV_VMCALL_QUERY_PROCESS_BASE, 4, 0, 0);
-    uint64_t systemCr3 = SafeVmCall(HV_VMCALL_QUERY_PROCESS_DIRBASE, 4, 0, 0);
+static void dump_process_bases(void) {
+    const uint32_t system_pid = 4;
 
-    printf("[+] Current process base : 0x%llx\n", currentBase);
-    printf("[+] ntoskrnl.exe base    : 0x%llx\n", systemBase);
-    printf("[+] System process CR3   : 0x%llx\n", systemCr3);
+    uint64_t current_base = safe_vmcall(hv_vmcall_query_current_process_base, 0, 0, 0);
+    uint64_t system_base = safe_vmcall(hv_vmcall_query_process_base, system_pid, 0, 0);
+    uint64_t system_cr3 = safe_vmcall(hv_vmcall_query_process_dirbase, system_pid, 0, 0);
+
+    printf("[+] current image base : 0x%016llx\n", current_base);
+    printf("[+] ntoskrnl.exe base  : 0x%016llx\n", system_base);
+    printf("[+] system process cr3 : 0x%016llx\n", system_cr3);
 }
 
-static void DumpAddressTranslations(void)
-{
-    uint64_t selfAddress = (uint64_t)GetModuleHandleW(NULL);
-    uint64_t selfHpa = SafeVmCall(HV_VMCALL_TRANSLATE_GVA_TO_HPA, selfAddress, 0, 0);
+static void dump_address_translations(void) {
+    HMODULE self = GetModuleHandleW(NULL);
+    HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
 
-    printf("[+] Image base GVA: 0x%llx -> HPA: 0x%llx\n", selfAddress, selfHpa);
+    uint64_t self_base = (uint64_t)self;
+    uint64_t ntdll_base = (uint64_t)ntdll;
+
+    uint64_t self_hpa = safe_vmcall(hv_vmcall_translate_gva_to_hpa, self_base, 0, 0);
+    uint64_t ntdll_hpa = safe_vmcall(hv_vmcall_translate_gva_to_hpa, ntdll_base, 0, 0);
+
+    printf("[+] image base gva -> hpa : 0x%016llx -> 0x%016llx\n", self_base, self_hpa);
+    printf("[+] ntdll    gva -> hpa   : 0x%016llx -> 0x%016llx\n", ntdll_base, ntdll_hpa);
 }
 
-int main(void)
-{
-    printf("[+] Simple usermode hypervisor demo\n");
-    printf("    Ensure the SVM hypervisor driver is loaded before running.\n\n");
+static void probe_mailbox_state(void) {
+    uint64_t last_mailbox = safe_vmcall(hv_vmcall_last_mailbox, 0, 0, 0);
+    uint64_t stealth = safe_vmcall(hv_vmcall_stealth_enable, 0, 0, 0);
 
-    PrintVendorString();
-    DumpProcessInfo();
-    DumpAddressTranslations();
+    printf("[+] last mailbox token    : 0x%016llx\n", last_mailbox);
+    printf("[+] stealth enable result : 0x%016llx\n", stealth);
 
-    printf("\n[+] Done.\n");
+    if (stealth != 0) {
+        uint64_t disabled = safe_vmcall(hv_vmcall_stealth_disable, 0, 0, 0);
+        printf("[+] stealth disable result: 0x%016llx\n", disabled);
+    }
+}
+
+static void print_menu_hint(void) {
+    puts("-------------------------------------------");
+    puts("[~] svm playground usermode client");
+    puts("[~] calls the hypervisor through vmmcall");
+    puts("-------------------------------------------");
+    puts("");
+}
+
+int main(void) {
+    SetConsoleTitleA("svm hypercall playground [~]");
+
+    print_menu_hint();
+    printf("[+] make sure the svm driver is loaded first.\n\n");
+
+    print_vendor_string();
+    dump_process_bases();
+    dump_address_translations();
+    probe_mailbox_state();
+
+    printf("\n[+] done.\n");
     return 0;
 }
 

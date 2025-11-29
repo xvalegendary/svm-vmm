@@ -31,6 +31,9 @@
     <ClCompile Include="hooks.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="communication.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
     <ClCompile Include="stealth.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -41,6 +44,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="layers.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="process_manager.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="translator.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -63,6 +72,9 @@
     <ClInclude Include="hooks.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
+    <ClInclude Include="communication.h">
+      <Filter>Source Files\Include</Filter>
+    </ClInclude>
     <ClInclude Include="stealth.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
@@ -76,6 +88,12 @@
       <Filter>Source Files\Include</Filter>
     </ClInclude>
     <ClInclude Include="vmcb.h">
+      <Filter>Source Files\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="process_manager.h">
+      <Filter>Source Files\Include</Filter>
+    </ClInclude>
+    <ClInclude Include="translator.h">
       <Filter>Source Files\Include</Filter>
     </ClInclude>
   </ItemGroup>

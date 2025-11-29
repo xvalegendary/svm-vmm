@@ -6,6 +6,9 @@
 #include "npt.h"
 #include "stealth.h"
 #include "msr.h"
+#include "translator.h"
+#include "process_manager.h"
+#include "communication.h"
 
 
 
@@ -225,6 +228,65 @@ UINT64 HookVmmcallDispatch(VCPU* V, UINT64 code, UINT64 a1, UINT64 a2, UINT64 a3
     case 0x201:
         StealthDisable();
         return TRUE;
+
+    case 0x210: // fetch last mailbox payload
+    {
+        HV_COMM_MESSAGE message = { 0 };
+        if (CommReceive(V, &message))
+            return message.Code;
+        return 0;
+    }
+
+    case 0x211: // send mailbox payload (a1..a3)
+    {
+        HV_COMM_MESSAGE message = { 0 };
+        message.Code = a1;
+        message.Arg0 = a2;
+        message.Arg1 = a3;
+        return CommSend(V, &message);
+    }
+
+    case 0x220: // translate guest virtual to guest physical
+    {
+        VA_TRANSLATION_RESULT tx = TranslatorTranslate(V, a1);
+        return tx.Valid ? tx.GuestPhysical.QuadPart : 0;
+    }
+
+    case 0x221: // translate guest virtual to host physical
+    {
+        VA_TRANSLATION_RESULT tx = TranslatorTranslate(V, a1);
+        return tx.Valid ? tx.HostPhysical.QuadPart : 0;
+    }
+
+    case 0x222: // translate guest physical to host physical
+    {
+        PHYSICAL_ADDRESS hpa = TranslatorGpaToHpa(V, a1);
+        return hpa.QuadPart;
+    }
+
+    case 0x320: // query current process base
+    {
+        PROCESS_DETAILS details = { 0 };
+        if (NT_SUCCESS(ProcessQueryCurrent(&details)))
+            return details.ImageBase;
+        return 0;
+    }
+
+    case 0x321: // query process base by pid
+    {
+        PROCESS_DETAILS details = { 0 };
+        if (NT_SUCCESS(ProcessQueryByPid((HANDLE)a1, &details)))
+            return details.ImageBase;
+        return 0;
+    }
+
+    case 0x322: // query process dirbase by pid
+    {
+        PROCESS_DETAILS details = { 0 };
+        if (NT_SUCCESS(ProcessQueryByPid((HANDLE)a1, &details)))
+            return details.DirectoryTableBase;
+        return 0;
+    }
 
     case 0x300: // enable syscall hook
         HookInstallSyscall(V);

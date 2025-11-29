@@ -4,6 +4,7 @@
 #include "npt.h"
 #include "stealth.h"
 #include "vmcb.h"
+#include "communication.h"
 
 #define APIC_BASE_GPA 0xFEE00000ULL
 #define ACPI_PM_GPA   0x00000400ULL
@@ -25,10 +26,8 @@ static VOID HvPrimeCloaking(VCPU* V)
 
 static VOID HvPrimeHardwareEntry(VCPU* V)
 {
-    V->Ipc.MailboxGpa = APIC_BASE_GPA;
-    V->Ipc.Active = TRUE;
+    CommInit(V, APIC_BASE_GPA);
 
-    
     NptSetupHardwareTriggers(&V->Npt, APIC_BASE_GPA, ACPI_PM_GPA, SMM_TRAP_GPA, MMIO_DOORBELL);
 }
 
@@ -52,7 +51,7 @@ BOOLEAN HvHandleLayeredNpf(VCPU* V, UINT64 faultGpa)
     UINT64 mailbox = 0;
     if (NptHandleHardwareTriggers(&V->Npt, faultGpa, &mailbox))
     {
-        V->Ipc.LastMessage = mailbox;
+        CommHandleDoorbell(V, mailbox);
         return TRUE;
     }
 

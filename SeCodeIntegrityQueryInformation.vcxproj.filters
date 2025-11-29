@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <Filter Include="Source Files">
@@ -9,109 +9,143 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Source Files\\Core">
+      <UniqueIdentifier>{c52f0d75-53f0-49f2-89a2-5a2e7361532c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Driver Files">
-      <UniqueIdentifier>{8E41214B-6785-4CFE-B992-037D68949A14}</UniqueIdentifier>
-      <Extensions>inf;inv;inx;mof;mc;</Extensions>
+    <Filter Include="Source Files\\Communication">
+      <UniqueIdentifier>{009e96c4-2b62-4b6d-9730-28747826e48b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\Include">
-      <UniqueIdentifier>{66d94b3a-3d0f-4a9f-8476-a068c1e6a392}</UniqueIdentifier>
+    <Filter Include="Source Files\\Memory">
+      <UniqueIdentifier>{6413257a-4a4a-4f82-bbc1-81f3dab7e0d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\\Hooks">
+      <UniqueIdentifier>{7e6c2260-4048-4af2-bc4b-4c1bff4c4f7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\\Process">
+      <UniqueIdentifier>{c3b9d522-ae0b-4b6d-8a6e-f75f5fdb2991}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\\Stealth">
+      <UniqueIdentifier>{1aa0f49f-3f5f-4d6f-a7c2-e71d2dd04c6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\\Interrupts">
+      <UniqueIdentifier>{053cb174-50f0-4c78-92a1-8d296a9121f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\\Assembly">
+      <UniqueIdentifier>{8dbbfa4e-c0b5-4e9e-b57a-e55ca2329a1d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\\Core">
+      <UniqueIdentifier>{fd501a80-2ef7-4b57-b53c-08125799ac80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\\Communication">
+      <UniqueIdentifier>{77ad8707-77ce-41f6-b1e4-3f3f066e4e8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\\Memory">
+      <UniqueIdentifier>{ae757fff-e4d4-46be-9e0c-85e30be2d6f0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\\Hooks">
+      <UniqueIdentifier>{58dc21f8-7f05-409b-a373-1bc46c9ed0df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\\Process">
+      <UniqueIdentifier>{08d194a0-1fe5-4f5c-9219-88426d561a80}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\\Stealth">
+      <UniqueIdentifier>{756ec24c-014b-4ca6-bd2f-523bf46b09d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\\Interrupts">
+      <UniqueIdentifier>{bda1c366-6279-45d1-8ff6-fc07a2ff7dfc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="driver.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\core\driver.c">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="communication.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\communication\communication.c">
+      <Filter>Source Files\Communication</Filter>
     </ClCompile>
-    <ClCompile Include="guest_mem.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\memory\guest_mem.c">
+      <Filter>Source Files\Memory</Filter>
     </ClCompile>
-    <ClCompile Include="hooks.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\hooks\hooks.c">
+      <Filter>Source Files\Hooks</Filter>
     </ClCompile>
-    <ClCompile Include="hypervisor.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\core\hypervisor.c">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="layers.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\memory\layers.c">
+      <Filter>Source Files\Memory</Filter>
     </ClCompile>
-    <ClCompile Include="npt.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\memory\npt.c">
+      <Filter>Source Files\Memory</Filter>
     </ClCompile>
-    <ClCompile Include="process_manager.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\process\process_manager.c">
+      <Filter>Source Files\Process</Filter>
     </ClCompile>
-    <ClCompile Include="shadow_idt.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\interrupts\shadow_idt.c">
+      <Filter>Source Files\Interrupts</Filter>
     </ClCompile>
-    <ClCompile Include="smp.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\core\smp.c">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="stealth.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\stealth\stealth.c">
+      <Filter>Source Files\Stealth</Filter>
     </ClCompile>
-    <ClCompile Include="svm.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\core\svm.c">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
-    <ClCompile Include="translator.c">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="src\core\translator.c">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="communication.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\communication.h">
+      <Filter>Header Files\Communication</Filter>
     </ClInclude>
-    <ClInclude Include="guest_mem.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\guest_mem.h">
+      <Filter>Header Files\Memory</Filter>
     </ClInclude>
-    <ClInclude Include="hooks.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\hooks.h">
+      <Filter>Header Files\Hooks</Filter>
     </ClInclude>
-    <ClInclude Include="layers.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\layers.h">
+      <Filter>Header Files\Memory</Filter>
     </ClInclude>
-    <ClInclude Include="msr.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\msr.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="process_manager.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\process_manager.h">
+      <Filter>Header Files\Process</Filter>
     </ClInclude>
-    <ClInclude Include="npt.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\npt.h">
+      <Filter>Header Files\Memory</Filter>
     </ClInclude>
-    <ClInclude Include="shadow_idt.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\shadow_idt.h">
+      <Filter>Header Files\Interrupts</Filter>
     </ClInclude>
-    <ClInclude Include="smp.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\smp.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="stealth.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\stealth.h">
+      <Filter>Header Files\Stealth</Filter>
     </ClInclude>
-    <ClInclude Include="translator.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\translator.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="svm.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\svm.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="vcpu.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\vcpu.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="vmcb.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\vmcb.h">
+      <Filter>Header Files\Core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <MASM Include="shadow_idt.asm">
-      <Filter>Source Files</Filter>
+    <MASM Include="asm\shadow_idt.asm">
+      <Filter>Source Files\Assembly</Filter>
     </MASM>
-    <MASM Include="vmrun.asm">
-      <Filter>Source Files</Filter>
+    <MASM Include="asm\vmrun.asm">
+      <Filter>Source Files\Assembly</Filter>
     </MASM>
   </ItemGroup>
 </Project>

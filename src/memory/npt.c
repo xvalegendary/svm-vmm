@@ -20,6 +20,28 @@ static NPT_ENTRY* NptAllocTable(PHYSICAL_ADDRESS* outPa)
     return tbl;
 }
 
+static NPT_ENTRY* NptResolveTableFromEntry(NPT_ENTRY* entry)
+{
+    return (NPT_ENTRY*)MmGetVirtualForPhysical((PHYSICAL_ADDRESS){ entry->PageFrame << 12 });
+}
+
+static NPT_ENTRY* NptEnsureSubtable(NPT_ENTRY* parent, UINT64 index)
+{
+    if (!parent[index].Present)
+    {
+        PHYSICAL_ADDRESS pa;
+        NPT_ENTRY* tbl = NptAllocTable(&pa);
+        if (!tbl)
+            return NULL;
+
+        parent[index].Present = 1;
+        parent[index].Write = 1;
+        parent[index].PageFrame = pa.QuadPart >> 12;
+    }
+
+    return NptResolveTableFromEntry(&parent[index]);
+}
+
 //
 // Internal page walk for NPT
 //
@@ -395,6 +417,25 @@ VOID NptClearShadowHook(NPT_STATE* State)
     State->ShadowHook.NewHpaPage = 0;
 }
 
+static UINT64 NptGetMaxPhysicalAddress()
+{
+    UINT64 maxPa = 0;
+
+    PPHYSICAL_MEMORY_RANGE ranges = MmGetPhysicalMemoryRanges();
+    if (!ranges)
+        return 0;
+
+    for (PPHYSICAL_MEMORY_RANGE r = ranges; r->BaseAddress.QuadPart || r->NumberOfBytes.QuadPart; r++)
+    {
+        UINT64 end = r->BaseAddress.QuadPart + r->NumberOfBytes.QuadPart;
+        if (end > maxPa)
+            maxPa = end;
+    }
+
+    ExFreePool(ranges);
+    return maxPa;
+}
+
 //
 // Initialize full NPT (identity map) for entire 48-bit GPA
 //
@@ -422,34 +463,38 @@ NTSTATUS NptInitialize(NPT_STATE* State)
     State->Pml4 = pml4;
     State->Pml4Pa = pml4Pa;
 
-    // PDPT
-    PHYSICAL_ADDRESS pdptPa;
-    NPT_ENTRY* pdpt = NptAllocTable(&pdptPa);
-    if (!pdpt) return STATUS_INSUFFICIENT_RESOURCES;
+    UINT64 maxPa = NptGetMaxPhysicalAddress();
+    if (!maxPa)
+        return STATUS_INSUFFICIENT_RESOURCES;
 
-    pml4[0].Present = 1;
-    pml4[0].Write = 1;
-    pml4[0].PageFrame = pdptPa.QuadPart >> 12;
+    // Map physical memory using 2MB large pages
+    UINT64 maxPaAligned = (maxPa + 0x1FFFFFULL) & ~0x1FFFFFULL; // align up to 2MB
+    UINT64 largePageCount = maxPaAligned / 0x200000ULL;
 
-    // PD
-    PHYSICAL_ADDRESS pdPa;
-    NPT_ENTRY* pd = NptAllocTable(&pdPa);
-    if (!pd) return STATUS_INSUFFICIENT_RESOURCES;
-
-    pdpt[0].Present = 1;
-    pdpt[0].Write = 1;
-    pdpt[0].PageFrame = pdPa.QuadPart >> 12;
-
-    // Identity map 0 → 1GB using 2MB huge pages
-    for (UINT64 i = 0; i < 512; i++)
+    for (UINT64 pageIndex = 0; pageIndex < largePageCount; pageIndex++)
     {
-        pd[i].Present = 1;
-        pd[i].Write = 1;
-        pd[i].LargePage = 1;
+        UINT64 phys = pageIndex * 0x200000ULL;
 
-        // 2MB * i
-        UINT64 phys = i * 0x200000ULL;
-        pd[i].PageFrame = phys >> 12;
+        UINT64 pml4_i = (phys >> 39) & 0x1FF;
+        UINT64 pdpt_i = (phys >> 30) & 0x1FF;
+        UINT64 pd_i = (phys >> 21) & 0x1FF;
+
+        NPT_ENTRY* pdpt = NptEnsureSubtable(State->Pml4, pml4_i);
+        if (!pdpt)
+            return STATUS_INSUFFICIENT_RESOURCES;
+
+        NPT_ENTRY* pd = NptEnsureSubtable(pdpt, pdpt_i);
+        if (!pd)
+            return STATUS_INSUFFICIENT_RESOURCES;
+
+        NPT_ENTRY* pde = &pd[pd_i];
+        if (!pde->Present)
+        {
+            pde->Present = 1;
+            pde->Write = 1;
+            pde->LargePage = 1;
+            pde->PageFrame = phys >> 12;
+        }
     }
 
     return STATUS_SUCCESS;
@@ -471,21 +516,30 @@ VOID NptDestroy(NPT_STATE* State)
     }
 
     if (State->Pml4)
-        MmFreeContiguousMemory(State->Pml4);
-
-    // All lower level tables are allocated contiguously and reachable from the PML4.
-    // Since they are not individually tracked, free the initial PDPT/PD pages if present.
-    if (State->Pml4)
     {
-        NPT_ENTRY* pdpt = (NPT_ENTRY*)MmGetVirtualForPhysical((PHYSICAL_ADDRESS){ State->Pml4[0].PageFrame << 12 });
-        if (pdpt)
+        for (UINT64 pml4_i = 0; pml4_i < 512; pml4_i++)
         {
-            NPT_ENTRY* pd = (NPT_ENTRY*)MmGetVirtualForPhysical((PHYSICAL_ADDRESS){ pdpt[0].PageFrame << 12 });
-            if (pd)
-                MmFreeContiguousMemory(pd);
+            if (!State->Pml4[pml4_i].Present)
+                continue;
+
+            NPT_ENTRY* pdpt = NptResolveTableFromEntry(&State->Pml4[pml4_i]);
+            if (!pdpt)
+                continue;
+
+            for (UINT64 pdpt_i = 0; pdpt_i < 512; pdpt_i++)
+            {
+                if (!pdpt[pdpt_i].Present || pdpt[pdpt_i].LargePage)
+                    continue;
+
+                NPT_ENTRY* pd = NptResolveTableFromEntry(&pdpt[pdpt_i]);
+                if (pd)
+                    MmFreeContiguousMemory(pd);
+            }
 
             MmFreeContiguousMemory(pdpt);
         }
+
+        MmFreeContiguousMemory(State->Pml4);
     }
 }
 

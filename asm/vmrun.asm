@@ -11,11 +11,12 @@ VmrunAsm ENDP
 
 PUBLIC GuestEntry
 GuestEntry PROC
-GuestLoop:
-    mov     rax, 1337h
-    vmmcall
+    cli
+
+guest_loop:
     hlt
-    jmp     GuestLoop
+    jmp     guest_loop
+
 GuestEntry ENDP
 
 _TEXT ENDS

@@ -1,6 +1,7 @@
-#define INTERCEPT_CPUID   (1ULL << 0)
+﻿#define INTERCEPT_CPUID   (1ULL << 0)
 #define INTERCEPT_HLT     (1ULL << 7)
-#define INTERCEPT_MSR     (1ULL << 0) 
+#define INTERCEPT_MSR     (1ULL << 0)
+
 #include <ntifs.h>
 #include <intrin.h>
 #include "svm.h"
@@ -16,9 +17,15 @@
 extern VOID VmrunAsm(UINT64 VmcbPa);
 extern VOID GuestEntry();
 
+#define MSRPM_SIZE 0x6000
+#define IOPM_SIZE  0x2000
+
+
+
 static NTSTATUS SvmCheckSupport()
 {
     int info[4];
+
     __cpuid(info, 0x80000001);
     if (!(info[2] & (1 << 2)))
     {
@@ -33,24 +40,26 @@ static NTSTATUS SvmCheckSupport()
         return STATUS_HV_FEATURE_UNAVAILABLE;
     }
 
-        
-
     if (MsrRead(MSR_VM_CR) & VM_CR_SVMDIS)
     {
-        DbgPrint("SVM-HV: SVM is disabled in VM_CR.\n");
+        DbgPrint("SVM-HV: SVM disabled (SVMDIS=1).\n");
         return STATUS_NOT_SUPPORTED;
     }
+
     return STATUS_SUCCESS;
 }
+
 
 static VOID SvmEnable()
 {
     UINT64 efer = MsrRead(MSR_EFER);
-    if (!(efer & EFER_SVME)) {
+    if (!(efer & EFER_SVME))
+    {
         efer |= EFER_SVME;
         MsrWrite(MSR_EFER, efer);
     }
 }
+
 
 static NTSTATUS AllocHostSave(VCPU* V)
 {
@@ -64,6 +73,8 @@ static NTSTATUS AllocHostSave(VCPU* V)
     return STATUS_SUCCESS;
 }
 
+
+
 static NTSTATUS AllocVmcb(VCPU* V)
 {
     V->Vmcb = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'vmcb');
@@ -73,6 +84,8 @@ static NTSTATUS AllocVmcb(VCPU* V)
     V->VmcbPa = MmGetPhysicalAddress(V->Vmcb);
     return STATUS_SUCCESS;
 }
+
+
 
 static NTSTATUS AllocGuestStack(VCPU* V)
 {
@@ -84,79 +97,156 @@ static NTSTATUS AllocGuestStack(VCPU* V)
     return STATUS_SUCCESS;
 }
 
-static VOID SetupGuest(VCPU* V)
-{   
-    VMCB_STATE_SAVE_AREA* st = VmcbState(V->Vmcb);
 
-    st->Rip = (UINT64)GuestEntry;
-    st->Rsp = (UINT64)V->GuestStack + V->GuestStackSize - 0x20;
 
-    st->Rflags = 0x2;
+static NTSTATUS AllocMsrpm(VCPU* V)
+{
+    V->Msrpm = ExAllocatePoolWithTag(NonPagedPoolNx, MSRPM_SIZE, 'msrp');
+    if (!V->Msrpm) return STATUS_INSUFFICIENT_RESOURCES;
 
-    st->Cr0 = __readcr0();
-    st->Cr3 = __readcr3();
-    st->Cr4 = __readcr4();
+    RtlZeroMemory(V->Msrpm, MSRPM_SIZE);
+    V->MsrpmPa = MmGetPhysicalAddress(V->Msrpm);
 
-    st->Efer = MsrRead(MSR_EFER);
-
-    NptUpdateShadowCr3(&V->Npt, st->Cr3);
+    return STATUS_SUCCESS;
 }
+
+static NTSTATUS AllocIopm(VCPU* V)
+{
+    V->Iopm = ExAllocatePoolWithTag(NonPagedPoolNx, IOPM_SIZE, 'iopm');
+    if (!V->Iopm) return STATUS_INSUFFICIENT_RESOURCES;
+
+    RtlZeroMemory(V->Iopm, IOPM_SIZE);
+    V->IopmPa = MmGetPhysicalAddress(V->Iopm);
+
+    return STATUS_SUCCESS;
+}
+
+
+static VOID SetupGuest(VCPU* V)
+{
+    VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
+
+    s->Rip = (UINT64)GuestEntry;
+    s->Rsp = (UINT64)V->GuestStack + V->GuestStackSize - 0x20;
+    s->Rflags = 0x2;
+
+    
+    s->CsSelector = 0x10;
+    s->CsAttributes = 0xA09B; 
+    s->CsLimit = 0xFFFFFFFF;
+    s->CsBase = 0;
+
+    s->DsSelector = 0x18;
+    s->DsAttributes = 0xC093;
+    s->DsLimit = 0xFFFFFFFF;
+    s->DsBase = 0;
+
+    s->EsSelector = 0x18;
+    s->EsAttributes = 0xC093;
+    s->EsLimit = 0xFFFFFFFF;
+    s->EsBase = 0;
+
+    s->SsSelector = 0x18;
+    s->SsAttributes = 0xC093;
+    s->SsLimit = 0xFFFFFFFF;
+    s->SsBase = 0;
+
+    s->FsSelector = 0x0;
+    s->FsAttributes = 0x0;
+    s->FsLimit = 0;
+    s->FsBase = 0;
+
+    s->GsSelector = 0x0;
+    s->GsAttributes = 0x0;
+    s->GsLimit = 0;
+    s->GsBase = 0;
+
+    s->GdtrBase = 0;
+    s->GdtrLimit = 0;
+    s->IdtrBase = 0;
+    s->IdtrLimit = 0;
+
+    s->Cr0 = __readcr0();
+    s->Cr3 = __readcr3();
+    s->Cr4 = __readcr4();
+    s->Efer = MsrRead(MSR_EFER);
+
+    
+    NptUpdateShadowCr3(&V->Npt, s->Cr3);
+}
+
+
+
 
 static VOID SetupControls(VCPU* V)
 {
     VMCB_CONTROL_AREA* c = VmcbControl(V->Vmcb);
 
     c->GuestAsid = 1;
-    c->VmcbCleanBits = 0;
 
-    c->InterceptCrRead = 0xFFFFFFFF;
-    c->InterceptCrWrite = 0xFFFFFFFF;
-    c->InterceptDrRead = 0xFFFFFFFF;
-    c->InterceptDrWrite = 0xFFFFFFFF;
+    c->InterceptCrRead = 0;
+    c->InterceptCrWrite = 0;
+    c->InterceptDrRead = 0;
+    c->InterceptDrWrite = 0;
 
-    c->InterceptInstruction1 =
-        INTERCEPT_CPUID |
-        INTERCEPT_HLT;
-
-    c->InterceptInstruction2 =
-        INTERCEPT_MSR;
-
-    c->NptControl = 1;  
+    c->InterceptInstruction1 = (1 << 0); 
+    c->InterceptInstruction2 = 0;       
 
     c->IopmBasePa = 0;
     c->MsrpmBasePa = 0;
+
+    c->NptControl = 1; 
+
+    
+    c->VmcbCleanBits = 0;
 }
+
 
 NTSTATUS SvmInit(VCPU** Out)
 {
     NTSTATUS st = SvmCheckSupport();
-    if (!NT_SUCCESS(st)) return st;
+    if (!NT_SUCCESS(st))
+        return st;
 
     SvmEnable();
 
     VCPU* V = ExAllocatePoolWithTag(NonPagedPoolNx, sizeof(VCPU), 'vcpu');
-    if (!V) return STATUS_INSUFFICIENT_RESOURCES;
+    if (!V)
+        return STATUS_INSUFFICIENT_RESOURCES;
 
     RtlZeroMemory(V, sizeof(*V));
 
+ 
     if (!NT_SUCCESS(st = AllocHostSave(V))) goto fail;
     if (!NT_SUCCESS(st = AllocVmcb(V))) goto fail;
     if (!NT_SUCCESS(st = AllocGuestStack(V))) goto fail;
 
-    NptInitialize(&V->Npt);
+    if (!NT_SUCCESS(st = AllocMsrpm(V))) goto fail;
+    if (!NT_SUCCESS(st = AllocIopm(V))) goto fail;
+
+    if (!NT_SUCCESS(st = NptInitialize(&V->Npt))) goto fail;
 
     SetupGuest(V);
     SetupControls(V);
 
+    VMCB_CONTROL_AREA* c = VmcbControl(V->Vmcb);
+    c->MsrpmBasePa = V->MsrpmPa.QuadPart;
+    c->IopmBasePa = V->IopmPa.QuadPart;
+
+    c->Ncr3 = V->Npt.Pml4Pa.QuadPart;
+
     HvActivateLayeredPipeline(V);
 
-    *Out = V;
+    *Out = V;   
     return STATUS_SUCCESS;
 
 fail:
     SvmShutdown(V);
     return st;
 }
+
+
+
 
 NTSTATUS SvmLaunch(VCPU* V)
 {
@@ -170,21 +260,21 @@ NTSTATUS SvmLaunch(VCPU* V)
     {
         return GetExceptionCode();
     }
+
     return HypervisorHandleExit(V);
 }
+
+
 
 VOID SvmShutdown(VCPU* V)
 {
     if (!V) return;
 
-    if (V->GuestStack)
-        ExFreePoolWithTag(V->GuestStack, 'gstk');
-
-    if (V->Vmcb)
-        ExFreePoolWithTag(V->Vmcb, 'vmcb');
-
-    if (V->HostSave)
-        ExFreePoolWithTag(V->HostSave, 'hsvm');
+    if (V->GuestStack) ExFreePoolWithTag(V->GuestStack, 'gstk');
+    if (V->Vmcb)       ExFreePoolWithTag(V->Vmcb, 'vmcb');
+    if (V->HostSave)   ExFreePoolWithTag(V->HostSave, 'hsvm');
+    if (V->Msrpm)      ExFreePoolWithTag(V->Msrpm, 'msrp');
+    if (V->Iopm)       ExFreePoolWithTag(V->Iopm, 'iopm');
 
     NptDestroy(&V->Npt);
 

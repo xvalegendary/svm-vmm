@@ -398,87 +398,63 @@ NTSTATUS NptInitialize(NPT_STATE* State)
     if (!State) return STATUS_INVALID_PARAMETER;
     RtlZeroMemory(State, sizeof(*State));
 
+    // Fake pages
     for (ULONG i = 0; i < 2; i++)
     {
         State->FakePageVa[i] = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'pfsh');
-        if (!State->FakePageVa[i])
-        {
-            for (ULONG j = 0; j < i; j++)
-            {
-                ExFreePoolWithTag(State->FakePageVa[j], 'pfsh');
-                State->FakePageVa[j] = NULL;
-                State->FakePagePa[j].QuadPart = 0;
-            }
-            return STATUS_INSUFFICIENT_RESOURCES;
-        }
+        if (!State->FakePageVa[i]) return STATUS_INSUFFICIENT_RESOURCES;
 
         RtlZeroMemory(State->FakePageVa[i], PAGE_SIZE);
         State->FakePagePa[i] = MmGetPhysicalAddress(State->FakePageVa[i]);
     }
 
-    State->FakePageIndex = 0;
-
-    PHYSICAL_ADDRESS paPml4;
-    NPT_ENTRY* pml4 = NptAllocTable(&paPml4);
-    if (!pml4)
-        return STATUS_INSUFFICIENT_RESOURCES;
+    // Allocate PML4
+    PHYSICAL_ADDRESS pml4Pa;
+    NPT_ENTRY* pml4 = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'npL4');
+    if (!pml4) return STATUS_INSUFFICIENT_RESOURCES;
+    RtlZeroMemory(pml4, PAGE_SIZE);
+    pml4Pa = MmGetPhysicalAddress(pml4);
 
     State->Pml4 = pml4;
-    State->Pml4Pa = paPml4;
+    State->Pml4Pa = pml4Pa;
 
-    //
-    // Создаем PDPT, PD, PT как identity-map всего 512GB пространства
-    //
-    for (UINT64 i4 = 0; i4 < 512; i4++)
+    // PDPT
+    PHYSICAL_ADDRESS pdptPa;
+    NPT_ENTRY* pdpt = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'npPT');
+    if (!pdpt) return STATUS_INSUFFICIENT_RESOURCES;
+    RtlZeroMemory(pdpt, PAGE_SIZE);
+    pdptPa = MmGetPhysicalAddress(pdpt);
+
+    pml4[0].Present = 1;
+    pml4[0].Write = 1;
+    pml4[0].PageFrame = pdptPa.QuadPart >> 12;
+
+    // PD
+    PHYSICAL_ADDRESS pdPa;
+    NPT_ENTRY* pd = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'npPD');
+    if (!pd) return STATUS_INSUFFICIENT_RESOURCES;
+    RtlZeroMemory(pd, PAGE_SIZE);
+    pdPa = MmGetPhysicalAddress(pd);
+
+    pdpt[0].Present = 1;
+    pdpt[0].Write = 1;
+    pdpt[0].PageFrame = pdPa.QuadPart >> 12;
+
+    // Identity map 0 → 1GB using 2MB huge pages
+    for (UINT64 i = 0; i < 512; i++)
     {
-        PHYSICAL_ADDRESS paPdpt;
-        NPT_ENTRY* pdpt = NptAllocTable(&paPdpt);
-        if (!pdpt) return STATUS_INSUFFICIENT_RESOURCES;
+        pd[i].Present = 1;
+        pd[i].Write = 1;
+        pd[i].LargePage = 1;
 
-        pml4[i4].Present = 1;
-        pml4[i4].Write = 1;
-        pml4[i4].PageFrame = paPdpt.QuadPart >> 12;
-
-        for (UINT64 i3 = 0; i3 < 512; i3++)
-        {
-            PHYSICAL_ADDRESS paPd;
-            NPT_ENTRY* pd = NptAllocTable(&paPd);
-            if (!pd) return STATUS_INSUFFICIENT_RESOURCES;
-
-            pdpt[i3].Present = 1;
-            pdpt[i3].Write = 1;
-            pdpt[i3].PageFrame = paPd.QuadPart >> 12;
-
-            for (UINT64 i2 = 0; i2 < 512; i2++)
-            {
-                PHYSICAL_ADDRESS paPt;
-                NPT_ENTRY* pt = NptAllocTable(&paPt);
-                if (!pt) return STATUS_INSUFFICIENT_RESOURCES;
-
-                pd[i2].Present = 1;
-                pd[i2].Write = 1;
-                pd[i2].PageFrame = paPt.QuadPart >> 12;
-
-                for (UINT64 i1 = 0; i1 < 512; i1++)
-                {
-                    UINT64 phys = ((i4 << 39) |
-                        (i3 << 30) |
-                        (i2 << 21) |
-                        (i1 << 12));
-
-                    pt[i1].Present = 1;
-                    pt[i1].Write = 1;
-                    pt[i1].User = 1;
-                    pt[i1].PageFrame = phys >> 12;
-                }
-            }
-        }
+        // 2MB * i
+        UINT64 phys = i * 0x200000ULL;
+        pd[i].PageFrame = phys >> 12;
     }
-
-    State->ShadowHook.Active = FALSE;
 
     return STATUS_SUCCESS;
 }
+
 
 //
 // Cleanup

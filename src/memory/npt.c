@@ -5,10 +5,15 @@
 #define PAGE_ALIGN(x) ((x) & ~0xFFFULL)
 #endif
 
-static NPT_ENTRY * NptAllocTable(PHYSICAL_ADDRESS * outPa)
+static NPT_ENTRY* NptAllocTable(PHYSICAL_ADDRESS* outPa)
 {
-    NPT_ENTRY* tbl = (NPT_ENTRY*)ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'TPTN');
-    if (!tbl) return NULL;
+    PHYSICAL_ADDRESS low = { 0 };
+    PHYSICAL_ADDRESS high = { .QuadPart = ~0ULL };
+    PHYSICAL_ADDRESS skip = { 0 };
+
+    NPT_ENTRY* tbl = MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE, low, high, skip, MmCached);
+    if (!tbl)
+        return NULL;
 
     RtlZeroMemory(tbl, PAGE_SIZE);
     *outPa = MmGetPhysicalAddress(tbl);
@@ -401,7 +406,8 @@ NTSTATUS NptInitialize(NPT_STATE* State)
     // Fake pages
     for (ULONG i = 0; i < 2; i++)
     {
-        State->FakePageVa[i] = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'pfsh');
+        State->FakePageVa[i] = MmAllocateContiguousMemorySpecifyCache(PAGE_SIZE,
+            (PHYSICAL_ADDRESS) { 0 }, (PHYSICAL_ADDRESS) { .QuadPart = ~0ULL }, (PHYSICAL_ADDRESS) { 0 }, MmCached);
         if (!State->FakePageVa[i]) return STATUS_INSUFFICIENT_RESOURCES;
 
         RtlZeroMemory(State->FakePageVa[i], PAGE_SIZE);
@@ -410,20 +416,16 @@ NTSTATUS NptInitialize(NPT_STATE* State)
 
     // Allocate PML4
     PHYSICAL_ADDRESS pml4Pa;
-    NPT_ENTRY* pml4 = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'npL4');
+    NPT_ENTRY* pml4 = NptAllocTable(&pml4Pa);
     if (!pml4) return STATUS_INSUFFICIENT_RESOURCES;
-    RtlZeroMemory(pml4, PAGE_SIZE);
-    pml4Pa = MmGetPhysicalAddress(pml4);
 
     State->Pml4 = pml4;
     State->Pml4Pa = pml4Pa;
 
     // PDPT
     PHYSICAL_ADDRESS pdptPa;
-    NPT_ENTRY* pdpt = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'npPT');
+    NPT_ENTRY* pdpt = NptAllocTable(&pdptPa);
     if (!pdpt) return STATUS_INSUFFICIENT_RESOURCES;
-    RtlZeroMemory(pdpt, PAGE_SIZE);
-    pdptPa = MmGetPhysicalAddress(pdpt);
 
     pml4[0].Present = 1;
     pml4[0].Write = 1;
@@ -431,10 +433,8 @@ NTSTATUS NptInitialize(NPT_STATE* State)
 
     // PD
     PHYSICAL_ADDRESS pdPa;
-    NPT_ENTRY* pd = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'npPD');
+    NPT_ENTRY* pd = NptAllocTable(&pdPa);
     if (!pd) return STATUS_INSUFFICIENT_RESOURCES;
-    RtlZeroMemory(pd, PAGE_SIZE);
-    pdPa = MmGetPhysicalAddress(pd);
 
     pdpt[0].Present = 1;
     pdpt[0].Write = 1;
@@ -467,7 +467,25 @@ VOID NptDestroy(NPT_STATE* State)
     for (ULONG i = 0; i < 2; i++)
     {
         if (State->FakePageVa[i])
-            ExFreePoolWithTag(State->FakePageVa[i], 'pfsh');
+            MmFreeContiguousMemory(State->FakePageVa[i]);
+    }
+
+    if (State->Pml4)
+        MmFreeContiguousMemory(State->Pml4);
+
+    // All lower level tables are allocated contiguously and reachable from the PML4.
+    // Since they are not individually tracked, free the initial PDPT/PD pages if present.
+    if (State->Pml4)
+    {
+        NPT_ENTRY* pdpt = (NPT_ENTRY*)MmGetVirtualForPhysical((PHYSICAL_ADDRESS){ State->Pml4[0].PageFrame << 12 });
+        if (pdpt)
+        {
+            NPT_ENTRY* pd = (NPT_ENTRY*)MmGetVirtualForPhysical((PHYSICAL_ADDRESS){ pdpt[0].PageFrame << 12 });
+            if (pd)
+                MmFreeContiguousMemory(pd);
+
+            MmFreeContiguousMemory(pdpt);
+        }
     }
 }
 

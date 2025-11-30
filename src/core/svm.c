@@ -61,13 +61,27 @@ static VOID SvmEnable()
 }
 
 
+static PVOID AllocAlignedContiguous(SIZE_T size, PHYSICAL_ADDRESS* pa)
+{
+    PHYSICAL_ADDRESS low = { 0 };
+    PHYSICAL_ADDRESS high = { .QuadPart = ~0ULL };
+    PHYSICAL_ADDRESS skip = { 0 };
+
+    PVOID mem = MmAllocateContiguousMemorySpecifyCache(size, low, high, skip, MmCached);
+    if (!mem)
+        return NULL;
+
+    RtlZeroMemory(mem, size);
+    *pa = MmGetPhysicalAddress(mem);
+    return mem;
+}
+
+
+
 static NTSTATUS AllocHostSave(VCPU* V)
 {
-    V->HostSave = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'hsvm');
+    V->HostSave = AllocAlignedContiguous(PAGE_SIZE, &V->HostSavePa);
     if (!V->HostSave) return STATUS_INSUFFICIENT_RESOURCES;
-
-    RtlZeroMemory(V->HostSave, PAGE_SIZE);
-    V->HostSavePa = MmGetPhysicalAddress(V->HostSave);
 
     MsrWrite(MSR_VM_HSAVE_PA, V->HostSavePa.QuadPart);
     return STATUS_SUCCESS;
@@ -77,11 +91,9 @@ static NTSTATUS AllocHostSave(VCPU* V)
 
 static NTSTATUS AllocVmcb(VCPU* V)
 {
-    V->Vmcb = ExAllocatePoolWithTag(NonPagedPoolNx, PAGE_SIZE, 'vmcb');
+    V->Vmcb = AllocAlignedContiguous(PAGE_SIZE, &V->VmcbPa);
     if (!V->Vmcb) return STATUS_INSUFFICIENT_RESOURCES;
 
-    RtlZeroMemory(V->Vmcb, PAGE_SIZE);
-    V->VmcbPa = MmGetPhysicalAddress(V->Vmcb);
     return STATUS_SUCCESS;
 }
 
@@ -101,22 +113,16 @@ static NTSTATUS AllocGuestStack(VCPU* V)
 
 static NTSTATUS AllocMsrpm(VCPU* V)
 {
-    V->Msrpm = ExAllocatePoolWithTag(NonPagedPoolNx, MSRPM_SIZE, 'msrp');
+    V->Msrpm = AllocAlignedContiguous(MSRPM_SIZE, &V->MsrpmPa);
     if (!V->Msrpm) return STATUS_INSUFFICIENT_RESOURCES;
-
-    RtlZeroMemory(V->Msrpm, MSRPM_SIZE);
-    V->MsrpmPa = MmGetPhysicalAddress(V->Msrpm);
 
     return STATUS_SUCCESS;
 }
 
 static NTSTATUS AllocIopm(VCPU* V)
 {
-    V->Iopm = ExAllocatePoolWithTag(NonPagedPoolNx, IOPM_SIZE, 'iopm');
+    V->Iopm = AllocAlignedContiguous(IOPM_SIZE, &V->IopmPa);
     if (!V->Iopm) return STATUS_INSUFFICIENT_RESOURCES;
-
-    RtlZeroMemory(V->Iopm, IOPM_SIZE);
-    V->IopmPa = MmGetPhysicalAddress(V->Iopm);
 
     return STATUS_SUCCESS;
 }
@@ -271,10 +277,10 @@ VOID SvmShutdown(VCPU* V)
     if (!V) return;
 
     if (V->GuestStack) ExFreePoolWithTag(V->GuestStack, 'gstk');
-    if (V->Vmcb)       ExFreePoolWithTag(V->Vmcb, 'vmcb');
-    if (V->HostSave)   ExFreePoolWithTag(V->HostSave, 'hsvm');
-    if (V->Msrpm)      ExFreePoolWithTag(V->Msrpm, 'msrp');
-    if (V->Iopm)       ExFreePoolWithTag(V->Iopm, 'iopm');
+    if (V->Vmcb)       MmFreeContiguousMemory(V->Vmcb);
+    if (V->HostSave)   MmFreeContiguousMemory(V->HostSave);
+    if (V->Msrpm)      MmFreeContiguousMemory(V->Msrpm);
+    if (V->Iopm)       MmFreeContiguousMemory(V->Iopm);
 
     NptDestroy(&V->Npt);
 

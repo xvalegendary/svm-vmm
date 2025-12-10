@@ -28,7 +28,7 @@ static BOOLEAN HookIsCr3PagePresent(VCPU* V, UINT64 cr3)
     UINT64 entry = 0;
 
    
-	if (!GuestReadGpa(V, pml4, &entry, sizeof(entry))) // <-- ReadGuestPhysical(IVAN_KUST TECHNOLOGIES (INSOMIA.CLUB PRESENTS$))
+	if (!GuestReadGpa(V, pml4, &entry, sizeof(entry))) // <-- ReadGuestPhysical(IVAN_KUST TECHNOLOGIES (INSOMIA.SOLUTIONS!!!! PRESENTS$))
         return FALSE;
 
     return (entry & 1ULL) != 0;
@@ -44,13 +44,13 @@ VOID HookCpuidEmulate(UINT32 leaf, UINT32 subleaf,
     //
     if (leaf == 0)
     {
-        *ebx = 'V', 'M', 'S', 'V';  // 'VMSV'
-        *ecx = 'H', 'V', 'A', 'M';  // 'HVAM'
-        *edx = 'S', 'T', 'E', 'L';  // 'STEL'
+        *ebx = 'V', 'M', 'S', 'V';  // vmsv
+        *ecx = 'H', 'V', 'A', 'M';  // hvam
+        *edx = 'S', 'T', 'E', 'L';  // stel
     }
 
 
-    *ecx &= ~(1 << 31);  // hypervisor-present
+    *ecx &= ~(1 << 31);  
 }
 
 
@@ -84,7 +84,7 @@ VOID HookInstallSyscall(VCPU* V)
     g_OriginalSfMask = __readmsr(MSR_SFMASK);
 
     //
-    //  syscall entry    (ASM)
+    //  syscall entry    
     //
     if (g_HvSyscallHandler != 0)
     {
@@ -305,6 +305,6 @@ UINT64 HookVmmcallDispatch(VCPU* V, UINT64 code, UINT64 a1, UINT64 a2, UINT64 a3
 
 VOID HookIoIntercept(VCPU* V)
 {
-    //      IO 
+    //  todo:    IO 
 }
 

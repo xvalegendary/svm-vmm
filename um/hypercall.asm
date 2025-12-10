@@ -6,15 +6,13 @@ option casemap:none
 hv_vmcall PROC
     push rbx
 
-    ; map windows x64 calling convention arguments to the registers
-    ; expected by HookVmmcallDispatch inside the hypervisor
+
     mov rax, rcx ; code
     mov rbx, rdx ; arg1
     mov rcx, r8  ; arg2
     mov rdx, r9  ; arg3
 
-    ; vmmcall (0f 01 d9) transfers control to the hypervisor when
-    ; the svm vmmcall intercept is enabled
+
     db 0fh, 01h, 0d9h
 
     pop rbx

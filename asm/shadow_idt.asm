@@ -1,15 +1,3 @@
-; ===============================================================
-; shadow_idt.asm — универсальный обработчик Shadow IDT
-;
-; Этот stub делает следующее:
-;  1. Сохраняет гостевой контекст
-;  2. Определяет номер вектора и error_code
-;  3. Зовёт C-функцию:
-;         ShadowIdtCommonHandler(VCPU* V, UINT64 vector, UINT64 errorCode)
-;  4. Возвращает управление обратно в гостя
-;
-;  Совместимо с Windows x64 ABI + AMD SVM VMCB
-; ===============================================================
 
 option casemap:none
 
@@ -22,9 +10,7 @@ PUBLIC ShadowIdtAsmHandler
 
 ShadowIdtAsmHandler PROC
 
-    ; ---------------------------------------------------------
-    ; Сохранение всех регистров гостя
-    ; ---------------------------------------------------------
+
     push rax
     push rcx
     push rdx
@@ -41,35 +27,24 @@ ShadowIdtAsmHandler PROC
     push r14
     push r15
 
-    ; ---------------------------------------------------------
-    ; Вектор и error code поступают по стеку гостя
-    ;     Вектор    = [rsp + 0x78]   (после push всех регистров)
-    ;     ErrorCode = [rsp + 0x80]   (если исключение с ошибкой)
-    ; ---------------------------------------------------------
+
     mov rax, qword ptr [rsp + 78h]     ; vector
     mov rbx, qword ptr [rsp + 80h]     ; error code
 
 
-    ; ---------------------------------------------------------
-    ; Windows x64 ABI:
-    ;   RCX = 1-й аргумент
-    ;   RDX = 2-й аргумент
-    ;   R8  = 3-й аргумент
-    ; ---------------------------------------------------------
+  
 
-    mov rcx, g_CurrentVcpu     ; RCX = VCPU*
-    mov rdx, rax               ; RDX = vector
-    mov r8,  rbx               ; R8  = error_code
+    mov rcx, g_CurrentVcpu    
+    mov rdx, rax               
+    mov r8,  rbx            
 
-    sub rsp, 20h             ; shadow space for ABI
+    sub rsp, 20h         
 
     call ShadowIdtCommonHandler
 
     add rsp, 20h
 
-    ; ---------------------------------------------------------
-    ; Восстановление регистров
-    ; ---------------------------------------------------------
+    ;
     pop r15
     pop r14
     pop r13
@@ -86,10 +61,7 @@ ShadowIdtAsmHandler PROC
     pop rcx
     pop rax
 
-    ; ---------------------------------------------------------
-    ; Возврат — AMD SVM возврат через гостевой контекст, RIP
-    ; уже обновлён внутри ShadowIdtCommonHandler()
-    ; ---------------------------------------------------------
+   
     iretq
 
 ShadowIdtAsmHandler ENDP

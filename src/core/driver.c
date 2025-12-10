@@ -2,6 +2,39 @@
 #include "svm.h"
 #include "vcpu.h"
 
+
+
+//        ,
+//        `-._           __
+//         \\  `-..____,.'  `.
+//          :`.         /    `.
+//          :  )       :      : \
+//           ;'        '   ;  |  :
+//           )..      .. .:.`.;  :
+//          /::...  .:::...   ` ;
+//          ; _ '    __        /:\
+//          `:o>   /\o_>      ;:. `.
+//         `-`.__ ;   __..--- /:.   \
+//         === \_/   ;=====_.':.     ;
+//          ,/'`--'...`--....        ;
+//               ;                    ;
+//             .'                      ;
+//           .'                        ;
+//         .'     ..     ,      .       ;
+//        :       ::..  /      ;::.     |
+//       /      `.;::.  |       ;:..    ;
+//      :         |:.   :       ;:.    ;
+//      :         ::     ;:..   |.    ;
+//       :       :;      :::....|     |
+//       /\     ,/ \      ;:::::;     ;
+//     .:. \:..|    :     ; '.--|     ;
+//    ::.  :''  `-.,,;     ;'   ;     ;
+//  .-'. _.'\      / `;      \,__:      \
+//  `---'    `----'   ;      /    \,.,,,/
+//                    `----`              sad
+
+
+
 VCPU* g_Vcpu0 = NULL;
 
 VOID DriverUnload(PDRIVER_OBJECT D)
@@ -28,7 +61,7 @@ NTSTATUS DriverEntry(PDRIVER_OBJECT D, PUNICODE_STRING R)
         DbgPrint("SVM-HV: DriverEntry called without DriverObject (mapper load), skipping unload registration.\n");
     }
 
-	NTSTATUS st = SvmInit(&g_Vcpu0); // <--- vgk gamerdog bypass $
+	NTSTATUS st = SvmInit(&g_Vcpu0); // <--- initialization
     if (!NT_SUCCESS(st))
     {
         DbgPrint("SVM-HV: SvmInit failed: 0x%X\n", st);

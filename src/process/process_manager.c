@@ -8,8 +8,7 @@ static VOID ProcessFillInfo(PEPROCESS Process, HANDLE Pid, PPROCESS_DETAILS Deta
     Details->ProcessId = Pid;
     Details->ImageBase = (UINT64)PsGetProcessSectionBaseAddress(Process);
 
-    // Accessing DirectoryTableBase is not part of the public WDK surface but
-    // is stable enough for private use inside this research hypervisor.
+    
     Details->DirectoryTableBase = *(UINT64*)((PUCHAR)Process + EPROCESS_DIRECTORY_TABLE_BASE);
 }
 

@@ -1,6 +1,8 @@
 #include "communication.h"
 #include "guest_mem.h"
 
+/* todo: make communication (shared memory) */
+
 VOID CommInit(VCPU* Vcpu, UINT64 MailboxGpa)
 {
     if (!Vcpu)
@@ -32,8 +34,7 @@ VOID CommHandleDoorbell(VCPU* Vcpu, UINT64 DoorbellValue)
     if (!CommMailboxValid(Vcpu))
         return;
 
-    // The doorbell value is used as a simple monotonic marker from the guest
-    // to signal that the mailbox contains a new message.
+    
     HV_COMM_MESSAGE msg = { 0 };
     if (GuestReadGpa(Vcpu, Vcpu->Ipc.MailboxGpa, &msg, sizeof(msg)))
     {

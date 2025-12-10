@@ -147,7 +147,6 @@ NTSTATUS HypervisorHandleExit(VCPU* V)
         return STATUS_SUCCESS;
 
     case SVM_EXIT_NPF:
-        // layer intercepts first
         if (HvHandleLayeredNpf(V, c->ExitInfo1))
             return STATUS_SUCCESS;
 

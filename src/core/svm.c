@@ -50,9 +50,7 @@ static NTSTATUS SvmCheckSupport()
 }
 
 
-//======================================================================
-//                    ENABLE SVM
-//======================================================================
+
 static VOID SvmEnable()
 {
     UINT64 efer = MsrRead(MSR_EFER);
@@ -61,9 +59,7 @@ static VOID SvmEnable()
 }
 
 
-//======================================================================
-//                CONTIGUOUS ALLOCATOR
-//======================================================================
+
 static PVOID AllocAligned(SIZE_T size, PHYSICAL_ADDRESS* pa)
 {
     PHYSICAL_ADDRESS low = { 0 };
@@ -79,9 +75,6 @@ static PVOID AllocAligned(SIZE_T size, PHYSICAL_ADDRESS* pa)
 }
 
 
-//======================================================================
-//                  ALLOC COMPONENTS
-//======================================================================
 static NTSTATUS AllocHostSave(VCPU* V)
 {
     V->HostSave = AllocAligned(PAGE_SIZE, &V->HostSavePa);
@@ -121,9 +114,7 @@ static NTSTATUS AllocIopm(VCPU* V)
 
 
 
-//======================================================================
-//                     SETUP GUEST STATE
-//======================================================================
+
 static VOID SetupGuest(VCPU* V)
 {
     VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
@@ -170,9 +161,7 @@ static VOID SetupGuest(VCPU* V)
 
 
 
-//======================================================================
-//                     SETUP CONTROLS
-//======================================================================
+
 static VOID SetupControls(VCPU* V)
 {
     VMCB_CONTROL_AREA* c = VmcbControl(V->Vmcb);
@@ -191,18 +180,14 @@ static VOID SetupControls(VCPU* V)
 
     c->NptControl = 1;
 
-    //
-    // TSC offset cloaking
-    //
+   
     c->TscOffset = V->CloakedTscOffset;
 }
 
 
 
 
-//======================================================================
-//                     SvmInit
-//======================================================================
+
 NTSTATUS SvmInit(VCPU** Out)
 {
     NTSTATUS st = SvmCheckSupport();
@@ -234,9 +219,7 @@ fail:
 }
 
 
-//======================================================================
-//                      SvmLaunch
-//======================================================================
+
 NTSTATUS SvmLaunch(VCPU* V)
 {
     __try {
@@ -250,9 +233,7 @@ NTSTATUS SvmLaunch(VCPU* V)
 }
 
 
-//======================================================================
-//                      Cleanup
-//======================================================================
+
 VOID SvmShutdown(VCPU* V)
 {
     if (!V) return;

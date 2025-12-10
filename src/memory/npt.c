@@ -42,9 +42,7 @@ static NPT_ENTRY* NptEnsureSubtable(NPT_ENTRY* parent, UINT64 index)
     return NptResolveTableFromEntry(&parent[index]);
 }
 
-//
-// Internal page walk for NPT
-//
+
 static NPT_ENTRY* NptGetEntry(
     NPT_STATE* State,
     UINT64 gpa,
@@ -123,7 +121,7 @@ static VOID NptProtectPageForTrap(NPT_STATE* State, UINT64 gpa, NPT_ENTRY* entry
     if (arm)
     {
         *originalFrame = entry->PageFrame;
-        entry->Present = 0; // force NPF on first touch
+        entry->Present = 0; 
     }
     else
     {
@@ -132,9 +130,7 @@ static VOID NptProtectPageForTrap(NPT_STATE* State, UINT64 gpa, NPT_ENTRY* entry
     }
 }
 
-//
-// GPA → HPA
-//
+
 PHYSICAL_ADDRESS NptTranslateGpaToHpa(NPT_STATE* State, UINT64 gpa)
 {
     PHYSICAL_ADDRESS pa = { 0 };
@@ -149,9 +145,7 @@ PHYSICAL_ADDRESS NptTranslateGpaToHpa(NPT_STATE* State, UINT64 gpa)
     return pa;
 }
 
-//
-// GVA → HPA through NPT (relies on guest CR3 page walk)
-//
+
 PHYSICAL_ADDRESS NptTranslateGvaToHpa(NPT_STATE* State, UINT64 gva)
 {
     PHYSICAL_ADDRESS pa = { 0 };
@@ -206,9 +200,7 @@ PHYSICAL_ADDRESS NptTranslateGvaToHpa(NPT_STATE* State, UINT64 gva)
     return pa;
 }
 
-//
-// Hook GPA → другой HPA (EPT-like hook)
-//
+
 BOOLEAN NptHookPage(NPT_STATE* State, UINT64 targetGpaPage, UINT64 newHpaPage)
 {
     UINT64 level;
@@ -257,7 +249,7 @@ static BOOLEAN NptPromoteTrapToFake(NPT_STATE* State, NPT_ENTRY* entry)
     entry->Accessed = 1;
     entry->Dirty = 1;
 
-    State->FakePageIndex ^= 1; // alternate between the two fake pages
+    State->FakePageIndex ^= 1; 
     return TRUE;
 }
 
@@ -274,7 +266,7 @@ static BOOLEAN NptHandleSingleTrigger(NPT_STATE* State,
 
     if ((gpa & ~0xFFFULL) != (entry->PageFrame << 12) && entry->Present)
     {
-        // re-arm later when backing is restored
+       
         return FALSE;
     }
 
@@ -442,9 +434,7 @@ NTSTATUS NptInitialize(NPT_STATE* State)
     if (!State) return STATUS_INVALID_PARAMETER;
     RtlZeroMemory(State, sizeof(*State));
 
-    //
-    // Fake pages
-    //
+    
     for (ULONG i = 0; i < 2; i++)
     {
         State->FakePageVa[i] =
@@ -466,9 +456,7 @@ NTSTATUS NptInitialize(NPT_STATE* State)
         State->FakePagePa[i] = MmGetPhysicalAddress(State->FakePageVa[i]);
     }
 
-    //
-    // Allocate PML4 table
-    //
+    
     PHYSICAL_ADDRESS pml4Pa;
     NPT_ENTRY* pml4 = NptAllocTable(&pml4Pa);
     if (!pml4) return STATUS_INSUFFICIENT_RESOURCES;
@@ -476,11 +464,9 @@ NTSTATUS NptInitialize(NPT_STATE* State)
     State->Pml4 = pml4;
     State->Pml4Pa = pml4Pa;
 
-    //
-    // Map ONLY 1GB
-    //
-    UINT64 mapLimit = 1ULL * 1024 * 1024 * 1024; // 1GB
-    UINT64 pageCount = mapLimit / 0x200000ULL;   // 2MB pages
+    
+    UINT64 mapLimit = 1ULL * 1024 * 1024 * 1024; 
+    UINT64 pageCount = mapLimit / 0x200000ULL;   
 
     for (UINT64 i = 0; i < pageCount; i++)
     {
@@ -511,9 +497,7 @@ NTSTATUS NptInitialize(NPT_STATE* State)
 
 
 
-//
-// Cleanup
-//
+
 VOID NptDestroy(NPT_STATE* State)
 {
     if (!State)

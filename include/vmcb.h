@@ -3,79 +3,101 @@
 
 #pragma pack(push, 1)
 
+typedef struct _VMCB_SEGMENT
+{
+    UINT16 Selector;
+    UINT16 Attributes;
+    UINT32 Limit;
+    UINT64 Base;
+} VMCB_SEGMENT;
+
 typedef struct _VMCB_CONTROL_AREA
 {
-    UINT32 InterceptCrRead;
-    UINT32 InterceptCrWrite;
-    UINT32 InterceptDrRead;
-    UINT32 InterceptDrWrite;
-    UINT32 InterceptException;
-    UINT32 InterceptInstruction1;
-    UINT32 InterceptInstruction2;
-
-    UINT8  Reserved0[0x3C];
+    UINT32 Intercepts[6];
+    UINT32 Reserved1[9];
 
     UINT16 PauseFilterThreshold;
     UINT16 PauseFilterCount;
 
     UINT64 IopmBasePa;
     UINT64 MsrpmBasePa;
-
     UINT64 TscOffset;
 
     UINT32 GuestAsid;
-    UINT32 TlbControl;
+    UINT8  TlbControl;
+    UINT8  Reserved2[3];
 
-    UINT64 VIntrVector;
-    UINT64 VIntrControl;
+    UINT32 InterruptControl;
+    UINT32 InterruptVector;
+    UINT32 InterruptState;
+    UINT8  Reserved3[4];
 
-    UINT64 ExitCode;
+    union
+    {
+        UINT64 ExitCode;
+        struct
+        {
+            UINT32 ExitCodeLow;
+            UINT32 ExitCodeHigh;
+        };
+    };
+
     UINT64 ExitInfo1;
     UINT64 ExitInfo2;
-    UINT64 ExitIntInfo;
-    UINT64 ExitIntInfoErrorCode;
+    UINT32 ExitIntInfo;
+    UINT32 ExitIntInfoErrorCode;
 
-    UINT64 NptControl;
+    UINT64 NestedControl;
+    UINT64 AvicApicBar;
+    UINT64 GhcbGpa;
+    UINT32 EventInjection;
+    UINT32 EventInjectionError;
 
-    /*UINT64 Ncr3;*/
+    UINT64 NestedCr3;
+    UINT64 VirtExt;
+    UINT32 VmcbClean;
+    UINT32 Reserved5;
 
-    UINT8 Reserved1[0x70];
+    UINT64 NextRip;
+    UINT8  InstructionLength;
+    UINT8  InstructionBytes[15];
 
-    UINT64 VmcbCleanBits;
-    UINT64 Nrip;
-
-    UINT8 Reserved2[0x2C0];
-
+    UINT64 AvicBackingPage;
+    UINT8  Reserved6[8];
+    UINT64 AvicLogicalId;
+    UINT64 AvicPhysicalId;
+    UINT8  Reserved7[8];
+    UINT64 VmsaPa;
+    UINT8  Reserved8[16];
+    UINT16 BusLockCounter;
+    UINT8  Reserved9[22];
+    UINT64 AllowedSevFeatures;
+    UINT64 GuestSevFeatures;
+    UINT8  Reserved10[664];
+    UINT8  ReservedSw[32];
 } VMCB_CONTROL_AREA;
 
 typedef struct _VMCB_STATE_SAVE_AREA
 {
-    UINT16 EsSelector;  UINT16 EsAttributes;  UINT32 EsLimit;  UINT64 EsBase;
-    UINT16 CsSelector;  UINT16 CsAttributes;  UINT32 CsLimit;  UINT64 CsBase;
-    UINT16 SsSelector;  UINT16 SsAttributes;  UINT32 SsLimit;  UINT64 SsBase;
-    UINT16 DsSelector;  UINT16 DsAttributes;  UINT32 DsLimit;  UINT64 DsBase;
-    UINT16 FsSelector;  UINT16 FsAttributes;  UINT32 FsLimit;  UINT64 FsBase;
-    UINT16 GsSelector;  UINT16 GsAttributes;  UINT32 GsLimit;  UINT64 GsBase;
+    VMCB_SEGMENT Es;
+    VMCB_SEGMENT Cs;
+    VMCB_SEGMENT Ss;
+    VMCB_SEGMENT Ds;
+    VMCB_SEGMENT Fs;
+    VMCB_SEGMENT Gs;
+    VMCB_SEGMENT Gdtr;
+    VMCB_SEGMENT Ldtr;
+    VMCB_SEGMENT Idtr;
+    VMCB_SEGMENT Tr;
 
-    UINT16 GdtrLimit;
-    UINT64 GdtrBase;
-
-    UINT16 IdtrLimit;
-    UINT64 IdtrBase;
-
-    UINT16 LdtrSelector;
-    UINT16 LdtrAttributes;
-    UINT32 LdtrLimit;
-    UINT64 LdtrBase;
-
-    UINT16 TrSelector;
-    UINT16 TrAttributes;
-    UINT32 TrLimit;
-    UINT64 TrBase;
-
-    UINT8 Reserved0[0x2E];
+    UINT8 Reserved0A0[42];
+    UINT8 Vmpl;
+    UINT8 Cpl;
+    UINT8 Reserved0CC[4];
 
     UINT64 Efer;
+    UINT8  Reserved0D8[112];
+
     UINT64 Cr4;
     UINT64 Cr3;
     UINT64 Cr0;
@@ -84,12 +106,13 @@ typedef struct _VMCB_STATE_SAVE_AREA
 
     UINT64 Rflags;
     UINT64 Rip;
-    UINT64 Rsp;
+    UINT8  Reserved180[88];
 
+    UINT64 Rsp;
+    UINT64 SCet;
+    UINT64 Ssp;
+    UINT64 IsstAddr;
     UINT64 Rax;
-    UINT64 Rbx;
-    UINT64 Rcx;
-    UINT64 Rdx;
     UINT64 Star;
     UINT64 Lstar;
     UINT64 Cstar;
@@ -100,19 +123,15 @@ typedef struct _VMCB_STATE_SAVE_AREA
     UINT64 SysenterEip;
     UINT64 Cr2;
 
-    UINT8 Reserved1[0x20];
-
+    UINT8  Reserved248[32];
     UINT64 Pat;
     UINT64 DebugCtl;
-    UINT64 DebugExcpMask;
-    UINT64 DebugExcp2;
     UINT64 BrFrom;
     UINT64 BrTo;
-    UINT64 LsFrom;
-    UINT64 LsTo;
-
-    UINT8 Reserved2[0x1A0];
-
+    UINT64 LastExcpFrom;
+    UINT64 LastExcpTo;
+    UINT8  Reserved298[72];
+    UINT64 SpecCtrl;
 } VMCB_STATE_SAVE_AREA;
 
 typedef struct _VMCB

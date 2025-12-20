@@ -1,4 +1,5 @@
 ﻿#include "npt.h"
+#include "svm.h"
 #include <ntifs.h>
 
 #ifndef PAGE_ALIGN
@@ -450,7 +451,10 @@ NTSTATUS NptInitialize(NPT_STATE* State)
         }, MmCached);
 
         if (!State->FakePageVa[i])
-            return STATUS_INSUFFICIENT_RESOURCES;
+        {
+            DbgPrint("SVM-HV: NPT fake page alloc failed (slot=%lu)\n", i);
+            return HV_STATUS_NPT_FAKEPAGE;
+        }
 
         RtlZeroMemory(State->FakePageVa[i], PAGE_SIZE);
         State->FakePagePa[i] = MmGetPhysicalAddress(State->FakePageVa[i]);
@@ -459,14 +463,26 @@ NTSTATUS NptInitialize(NPT_STATE* State)
     
     PHYSICAL_ADDRESS pml4Pa;
     NPT_ENTRY* pml4 = NptAllocTable(&pml4Pa);
-    if (!pml4) return STATUS_INSUFFICIENT_RESOURCES;
+    if (!pml4)
+    {
+        DbgPrint("SVM-HV: NPT PML4 alloc failed\n");
+        return HV_STATUS_NPT_PML4;
+    }
 
     State->Pml4 = pml4;
     State->Pml4Pa = pml4Pa;
 
-    
-    UINT64 mapLimit = 1ULL * 1024 * 1024 * 1024; 
-    UINT64 pageCount = mapLimit / 0x200000ULL;   
+    UINT64 mapLimit = NptGetMaxPhysicalAddress();
+    if (!mapLimit)
+        return HV_STATUS_NPT_RANGES;
+
+    if (mapLimit < (1ULL << 32))
+        mapLimit = (1ULL << 32);
+
+    mapLimit = (mapLimit + 0x1FFFFFULL) & ~0x1FFFFFULL;
+    UINT64 pageCount = mapLimit / 0x200000ULL;
+
+    DbgPrint("SVM-HV: NPT map limit=0x%llx pages=%llu\n", mapLimit, pageCount);
 
     for (UINT64 i = 0; i < pageCount; i++)
     {
@@ -477,10 +493,18 @@ NTSTATUS NptInitialize(NPT_STATE* State)
         UINT64 pd_i = (phys >> 21) & 0x1FF;
 
         NPT_ENTRY* pdpt = NptEnsureSubtable(pml4, pml4_i);
-        if (!pdpt) return STATUS_INSUFFICIENT_RESOURCES;
+        if (!pdpt)
+        {
+            DbgPrint("SVM-HV: NPT PDPT alloc failed (pml4=%llu)\n", pml4_i);
+            return HV_STATUS_NPT_PDPT;
+        }
 
         NPT_ENTRY* pd = NptEnsureSubtable(pdpt, pdpt_i);
-        if (!pd) return STATUS_INSUFFICIENT_RESOURCES;
+        if (!pd)
+        {
+            DbgPrint("SVM-HV: NPT PD alloc failed (pml4=%llu pdpt=%llu)\n", pml4_i, pdpt_i);
+            return HV_STATUS_NPT_PD;
+        }
 
         NPT_ENTRY* pde = &pd[pd_i];
         if (!pde->Present)

@@ -1,15 +1,64 @@
-﻿C:\SeCodeIntegrityQueryInformationHV\SeCodeIntegrityQueryInformation.vcxproj(69,5): warning MSB4011: невозможно повторно импортировать "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.props". Он уже был импортирован в "C:\Program Files (x86)\Windows Kits\10\build\10.0.26100.0\WindowsDriver.Shared.props (366,3)". Скорее всего это связано с ошибкой при написании кода сборки. Повторный импорт будет пропущен. 
-C:\SeCodeIntegrityQueryInformationHV\SeCodeIntegrityQueryInformation.vcxproj(152,5): warning MSB4011: невозможно повторно импортировать "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.targets". Он уже был импортирован в "C:\Program Files (x86)\Windows Kits\10\build\10.0.26100.0\WindowsDriver.common.targets (2087,3)". Скорее всего это связано с ошибкой при написании кода сборки. Повторный импорт будет пропущен. 
+﻿C:\Users\admin\Desktop\HyperVisor\svm-vmm\SeCodeIntegrityQueryInformation.vcxproj(69,5): warning MSB4011: невозможно повторно импортировать "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.props". Он уже был импортирован в "C:\Program Files (x86)\Windows Kits\10\build\10.0.26100.0\WindowsDriver.Shared.props (366,3)". Скорее всего это связано с ошибкой при написании кода сборки. Повторный импорт будет пропущен. 
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\SeCodeIntegrityQueryInformation.vcxproj(175,5): warning MSB4011: невозможно повторно импортировать "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.targets". Он уже был импортирован в "C:\Program Files (x86)\Windows Kits\10\build\10.0.26100.0\WindowsDriver.common.targets (2087,3)". Скорее всего это связано с ошибкой при написании кода сборки. Повторный импорт будет пропущен. 
   Building 'SeCodeIntegrityQueryInformation' with toolset 'WindowsKernelModeDriver10.0' and the 'Universal' target platform.
-x64\Release\shadow_idt.obj : warning LNK4042: объект указан более одного раза; лишние не учитываются
-shadow_idt.obj : error LNK2019: ссылка на неразрешенный внешний символ ShadowIdtCommonHandler в функции ShadowIdtAsmHandler.
-shadow_idt.obj : error LNK2019: ссылка на неразрешенный внешний символ g_CurrentVcpu в функции ShadowIdtAsmHandler.
-hooks.obj : error LNK2019: ссылка на неразрешенный внешний символ TranslatorTranslate в функции HookVmmcallDispatch.
-hooks.obj : error LNK2019: ссылка на неразрешенный внешний символ TranslatorGpaToHpa в функции HookVmmcallDispatch.
-hooks.obj : error LNK2019: ссылка на неразрешенный внешний символ ProcessQueryByPid в функции HookVmmcallDispatch.
-hooks.obj : error LNK2019: ссылка на неразрешенный внешний символ ProcessQueryCurrent в функции HookVmmcallDispatch.
-hooks.obj : error LNK2019: ссылка на неразрешенный внешний символ CommSend в функции HookVmmcallDispatch.
-hooks.obj : error LNK2019: ссылка на неразрешенный внешний символ CommReceive в функции HookVmmcallDispatch.
-layers.obj : error LNK2019: ссылка на неразрешенный внешний символ CommInit в функции HvActivateLayeredPipeline.
-layers.obj : error LNK2019: ссылка на неразрешенный внешний символ CommHandleDoorbell в функции HvHandleLayeredNpf.
-C:\SeCodeIntegrityQueryInformationHV\x64\Release\SeCodeIntegrityQueryInformation.sys : fatal error LNK1120: неразрешенных внешних элементов: 10
+  hypervisor.c
+  stealth.c
+  svm.c
+  translator.c
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\vmcb.h(42,10): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/hypervisor.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\vmcb.h(43,6): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/hypervisor.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\npt.h(26,6): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/hypervisor.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\hypervisor.c(45,22): warning C4242: функция: преобразование "UINT64" в "UINT32", возможна потеря данных
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\hypervisor.c(45,28): warning C4242: функция: преобразование "UINT64" в "UINT32", возможна потеря данных
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\hypervisor.c(105,25): warning C4242: функция: преобразование "UINT64" в "UINT8", возможна потеря данных
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\stealth.h(17,41): warning C4115: _VCPU: определение именованного типа в круглых скобках
+  (компиляция исходного файла "src/stealth/stealth.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\vmcb.h(42,10): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/stealth/stealth.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\vmcb.h(43,6): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/stealth/stealth.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\npt.h(26,6): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/stealth/stealth.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\vmcb.h(42,10): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/svm.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\vmcb.h(43,6): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/svm.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\npt.h(26,6): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/svm.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\svm.c(96,21): warning C4996: 'ExAllocatePoolWithTag': ExAllocatePoolWithTag is deprecated, use ExAllocatePool2.
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\vmcb.h(42,10): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/translator.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\vmcb.h(43,6): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/translator.c")
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\include\npt.h(26,6): warning C4201: нестандартное расширение: структура (объединение) без имени
+  (компиляция исходного файла "src/core/translator.c")
+  
+  Создание кода...
+  SeCodeIntegrityQueryInformation.vcxproj -> C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\SeCodeIntegrityQueryInformation.sys
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\SeCodeIntegrityQueryInformation.vcxproj(69,5): warning MSB4011: невозможно повторно импортировать "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.props". Он уже был импортирован в "C:\Program Files (x86)\Windows Kits\10\build\10.0.26100.0\WindowsDriver.Shared.props (366,3)". Скорее всего это связано с ошибкой при написании кода сборки. Повторный импорт будет пропущен. 
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\SeCodeIntegrityQueryInformation.vcxproj(175,5): warning MSB4011: невозможно повторно импортировать "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.targets". Он уже был импортирован в "C:\Program Files (x86)\Windows Kits\10\build\10.0.26100.0\WindowsDriver.common.targets (2087,3)". Скорее всего это связано с ошибкой при написании кода сборки. Повторный импорт будет пропущен. 
+  Done Adding Additional Store
+  Successfully signed: C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\SeCodeIntegrityQueryInformation.sys
+  
+  Driver is 'Universal'.
+  Inf2Cat task was skipped as there were no inf files to process
+  
+  DrvCat task was skipped as there was no catalog file to process
+  
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\SeCodeIntegrityQueryInformation.vcxproj(69,5): warning MSB4011: невозможно повторно импортировать "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.props". Он уже был импортирован в "C:\Program Files (x86)\Windows Kits\10\build\10.0.26100.0\WindowsDriver.Shared.props (366,3)". Скорее всего это связано с ошибкой при написании кода сборки. Повторный импорт будет пропущен. 
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\SeCodeIntegrityQueryInformation.vcxproj(175,5): warning MSB4011: невозможно повторно импортировать "C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\BuildCustomizations\masm.targets". Он уже был импортирован в "C:\Program Files (x86)\Windows Kits\10\build\10.0.26100.0\WindowsDriver.common.targets (2087,3)". Скорее всего это связано с ошибкой при написании кода сборки. Повторный импорт будет пропущен. 

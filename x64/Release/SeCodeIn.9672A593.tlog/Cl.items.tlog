@@ -1,2 +1,13 @@
-C:\Users\stark\OneDrive\Рабочий стол\SeCodeIntegrityQueryInformation\Main.cpp;C:\Users\stark\OneDrive\Рабочий стол\SeCodeIntegrityQueryInformation\x64\Release\Main.obj
-C:\Users\stark\OneDrive\Рабочий стол\SeCodeIntegrityQueryInformation\Memory.cpp;C:\Users\stark\OneDrive\Рабочий стол\SeCodeIntegrityQueryInformation\x64\Release\Memory.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\communication\communication.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\communication.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\driver.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\driver.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\memory\guest_mem.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\guest_mem.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\hooks\hooks.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\hooks.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\hypervisor.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\hypervisor.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\memory\layers.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\layers.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\memory\npt.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\npt.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\process\process_manager.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\process_manager.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\interrupts\shadow_idt.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\shadow_idt.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\smp.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\smp.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\stealth\stealth.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\stealth.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\svm.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\svm.obj
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\src\core\translator.c;C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\translator.obj

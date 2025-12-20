@@ -1,1 +1,2 @@
 C:\Users\stark\OneDrive\Рабочий стол\SeCodeIntegrityQueryInformation\x64\Release\SeCodeIntegrityQueryInformation.sys
+C:\Users\admin\Desktop\HyperVisor\svm-vmm\x64\Release\SeCodeIntegrityQueryInformation.sys

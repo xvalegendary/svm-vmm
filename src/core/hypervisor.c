@@ -11,15 +11,15 @@
 
 
 
-static VOID HvAdvanceRIP(VCPU* V)
+static VOID HvAdvanceRIP(VCPU* V, UINT8 len)
 {
     VMCB_CONTROL_AREA* c = VmcbControl(V->Vmcb);
     VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
 
-    if (c->Nrip)
-        s->Rip = c->Nrip;
+    if (c->NextRip)
+        s->Rip = c->NextRip;
     else
-        s->Rip += 2; 
+        s->Rip += len;
 }
 
 
@@ -28,7 +28,7 @@ static VOID HvHandleCpuid(VCPU* V)
     VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
 
     UINT64 leaf = s->Rax;
-    UINT64 sub = s->Rcx;
+    UINT64 sub = V->GuestRegs.Rcx;
 
     UINT32 eax, ebx, ecx, edx;
     __cpuidex((int*)&eax, (int)leaf, (int)sub);
@@ -45,11 +45,11 @@ static VOID HvHandleCpuid(VCPU* V)
     HookCpuidEmulate(leaf, sub, &eax, &ebx, &ecx, &edx);
 
     s->Rax = eax;
-    s->Rbx = ebx;
-    s->Rcx = ecx;
-    s->Rdx = edx;
+    V->GuestRegs.Rbx = ebx;
+    V->GuestRegs.Rcx = ecx;
+    V->GuestRegs.Rdx = edx;
 
-    HvAdvanceRIP(V);
+    HvAdvanceRIP(V, 2);
 }
 
 
@@ -57,8 +57,9 @@ static VOID HvHandleMsr(VCPU* V)
 {
     VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
 
-    BOOLEAN write = (s->Rcx >> 63) & 1;
-    UINT64 msr = s->Rcx & ~0x8000000000000000ULL;
+    UINT64 rcx = V->GuestRegs.Rcx;
+    BOOLEAN write = (rcx >> 63) & 1;
+    UINT64 msr = rcx & ~0x8000000000000000ULL;
 
     if (write)
     {
@@ -71,7 +72,7 @@ static VOID HvHandleMsr(VCPU* V)
         s->Rax = value;
     }
 
-    HvAdvanceRIP(V);
+    HvAdvanceRIP(V, 2);
 }
 
 
@@ -80,15 +81,15 @@ static VOID HvHandleVmmcall(VCPU* V)
     VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
 
     UINT64 code = s->Rax;
-    UINT64 arg1 = s->Rbx;
-    UINT64 arg2 = s->Rcx;
-    UINT64 arg3 = s->Rdx;
+    UINT64 arg1 = V->GuestRegs.Rbx;
+    UINT64 arg2 = V->GuestRegs.Rcx;
+    UINT64 arg3 = V->GuestRegs.Rdx;
 
     UINT64 result = HookVmmcallDispatch(V, code, arg1, arg2, arg3);
 
     s->Rax = result;
 
-    HvAdvanceRIP(V);
+    HvAdvanceRIP(V, 3);
 }
 
 
@@ -101,27 +102,24 @@ static VOID HvHandleNpf(VCPU* V)
    
     if (HvHandleLayeredNpf(V, fault_gpa))
     {
-        HvAdvanceRIP(V);
+        HvAdvanceRIP(V, fault_gpa);
         return;
     }
 
     HookNptHandleFault(V, fault_gpa);
-
-    HvAdvanceRIP(V);
 }
 
 
 static VOID HvHandleHlt(VCPU* V)
 {
-  
-    HvAdvanceRIP(V);
+    HvAdvanceRIP(V, 1);
 }
 
 
 static VOID HvHandleIo(VCPU* V)
 {
     HookIoIntercept(V);
-    HvAdvanceRIP(V);
+    HvAdvanceRIP(V, 2);
 }
 
 
@@ -154,6 +152,7 @@ NTSTATUS HypervisorHandleExit(VCPU* V)
         return STATUS_SUCCESS;
 
     case SVM_EXIT_HLT:
+        HvHandleHlt(V);
         return STATUS_SUCCESS;
 
     default:

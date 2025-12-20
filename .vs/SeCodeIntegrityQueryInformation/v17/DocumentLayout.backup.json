@@ -1,14 +1,84 @@
 {
   "Version": 1,
-  "WorkspaceRootPath": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\",
+  "WorkspaceRootPath": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\shadow_idt.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:shadow_idt.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\hypervisor.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\core\\hypervisor.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\smp.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:smp.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\communication\\communication.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\communication\\communication.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\layers.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\memory\\layers.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\asm\\shadow_idt.asm||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:asm\\shadow_idt.asm||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\interrupts\\shadow_idt.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\interrupts\\shadow_idt.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\smp.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\core\\smp.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\stealth\\stealth.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\stealth\\stealth.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\svm.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\core\\svm.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A7893147-3F6E-4F3E-9A31-A1EED6D7D175}|um\\um.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A7893147-3F6E-4F3E-9A31-A1EED6D7D175}|um\\um.vcxproj|solutionrelative:um\\main.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\driver.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\core\\driver.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\hooks\\hooks.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\hooks\\hooks.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\guest_mem.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\memory\\guest_mem.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\npt.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\memory\\npt.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\process\\process_manager.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\process\\process_manager.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\translator.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:src\\core\\translator.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\asm\\vmrun.asm||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{9672A593-2627-B990-DF1E-6F6FC5A359F7}|SeCodeIntegrityQueryInformation.vcxproj|solutionrelative:asm\\vmrun.asm||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A7893147-3F6E-4F3E-9A31-A1EED6D7D175}|um\\um.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\hypercall.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{A7893147-3F6E-4F3E-9A31-A1EED6D7D175}|um\\um.vcxproj|solutionrelative:um\\hypercall.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A7893147-3F6E-4F3E-9A31-A1EED6D7D175}|um\\um.vcxproj|C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\hypercall.asm||{8B382828-6202-11D1-8870-0000F87579D2}",
+      "RelativeMoniker": "D:0:0:{A7893147-3F6E-4F3E-9A31-A1EED6D7D175}|um\\um.vcxproj|solutionrelative:um\\hypercall.asm||{8B382828-6202-11D1-8870-0000F87579D2}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\shadow_idt.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\smp.c||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,33 +88,252 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 5,
           "Children": [
             {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "shadow_idt.c",
-              "DocumentMoniker": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\shadow_idt.c",
-              "RelativeDocumentMoniker": "shadow_idt.c",
-              "ToolTip": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\shadow_idt.c",
-              "RelativeToolTip": "shadow_idt.c",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAeAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-11-29T12:44:03.311Z",
-              "EditorCaption": ""
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{cce594b6-0c39-4442-ba28-10c64ac7e89f}"
             },
             {
               "$type": "Document",
               "DocumentIndex": 1,
+              "Title": "communication.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\communication\\communication.c",
+              "RelativeDocumentMoniker": "src\\communication\\communication.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\communication\\communication.c",
+              "RelativeToolTip": "src\\communication\\communication.c",
+              "ViewState": "AgIAACQAAAAAAAAAAAAAADkAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:52:45.623Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
+              "Title": "driver.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\driver.c",
+              "RelativeDocumentMoniker": "src\\core\\driver.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\driver.c",
+              "RelativeToolTip": "src\\core\\driver.c",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAACAAAAApAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:52:33.816Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "guest_mem.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\guest_mem.c",
+              "RelativeDocumentMoniker": "src\\memory\\guest_mem.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\guest_mem.c",
+              "RelativeToolTip": "src\\memory\\guest_mem.c",
+              "ViewState": "AgIAAG8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:52:31.503Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "hooks.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\hooks\\hooks.c",
+              "RelativeDocumentMoniker": "src\\hooks\\hooks.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\hooks\\hooks.c",
+              "RelativeToolTip": "src\\hooks\\hooks.c",
+              "ViewState": "AgIAABEBAAAAAAAAAAAAADMBAAAUAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:51:45.711Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "hypervisor.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\hypervisor.c",
+              "RelativeDocumentMoniker": "src\\core\\hypervisor.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\hypervisor.c",
+              "RelativeToolTip": "src\\core\\hypervisor.c",
+              "ViewState": "AgIAAFQAAAAAAAAAAAAAAGwAAAAlAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:51:41.13Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "layers.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\layers.c",
+              "RelativeDocumentMoniker": "src\\memory\\layers.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\layers.c",
+              "RelativeToolTip": "src\\memory\\layers.c",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:51:39.077Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "npt.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\npt.c",
+              "RelativeDocumentMoniker": "src\\memory\\npt.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\memory\\npt.c",
+              "RelativeToolTip": "src\\memory\\npt.c",
+              "ViewState": "AgIAAPsBAAAAAAAAAAAAAPMBAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:51:09.108Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
+              "Title": "process_manager.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\process\\process_manager.c",
+              "RelativeDocumentMoniker": "src\\process\\process_manager.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\process\\process_manager.c",
+              "RelativeToolTip": "src\\process\\process_manager.c",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAAAoAAAAEAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:51:06.03Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "shadow_idt.asm",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\asm\\shadow_idt.asm",
+              "RelativeDocumentMoniker": "asm\\shadow_idt.asm",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\asm\\shadow_idt.asm",
+              "RelativeToolTip": "asm\\shadow_idt.asm",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAALAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-12-10T12:50:43.036Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "shadow_idt.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\interrupts\\shadow_idt.c",
+              "RelativeDocumentMoniker": "src\\interrupts\\shadow_idt.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\interrupts\\shadow_idt.c",
+              "RelativeToolTip": "src\\interrupts\\shadow_idt.c",
+              "ViewState": "AgIAAFoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:50:43.258Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
               "Title": "smp.c",
-              "DocumentMoniker": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\smp.c",
-              "RelativeDocumentMoniker": "smp.c",
-              "ToolTip": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\smp.c",
-              "RelativeToolTip": "smp.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\smp.c",
+              "RelativeDocumentMoniker": "src\\core\\smp.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\smp.c",
+              "RelativeToolTip": "src\\core\\smp.c",
+              "ViewState": "AgIAAFMAAAAAAAAAAAAAABUAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:50:42.141Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "svm.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\svm.c",
+              "RelativeDocumentMoniker": "src\\core\\svm.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\svm.c",
+              "RelativeToolTip": "src\\core\\svm.c",
+              "ViewState": "AgIAANsAAAAAAAAAAAAAAPgAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:50:15.929Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "stealth.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\stealth\\stealth.c",
+              "RelativeDocumentMoniker": "src\\stealth\\stealth.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\stealth\\stealth.c",
+              "RelativeToolTip": "src\\stealth\\stealth.c",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
-              "WhenOpened": "2025-11-29T12:44:00.306Z",
-              "EditorCaption": ""
+              "WhenOpened": "2025-12-10T12:50:20.635Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 14,
+              "Title": "translator.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\translator.c",
+              "RelativeDocumentMoniker": "src\\core\\translator.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\src\\core\\translator.c",
+              "RelativeToolTip": "src\\core\\translator.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAABAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:50:14.871Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 15,
+              "Title": "vmrun.asm",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\asm\\vmrun.asm",
+              "RelativeDocumentMoniker": "asm\\vmrun.asm",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\asm\\vmrun.asm",
+              "RelativeToolTip": "asm\\vmrun.asm",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-12-10T12:50:13.504Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "main.c",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\main.c",
+              "RelativeDocumentMoniker": "um\\main.c",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\main.c",
+              "RelativeToolTip": "um\\main.c",
+              "ViewState": "AgIAABUAAAAAAAAAAAAAADMAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-12-10T12:50:08.172Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 16,
+              "Title": "hypercall.h",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\hypercall.h",
+              "RelativeDocumentMoniker": "um\\hypercall.h",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\hypercall.h",
+              "RelativeToolTip": "um\\hypercall.h",
+              "ViewState": "AgIAAAMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-12-10T12:50:04.577Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 17,
+              "Title": "hypercall.asm",
+              "DocumentMoniker": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\hypercall.asm",
+              "RelativeDocumentMoniker": "um\\hypercall.asm",
+              "ToolTip": "C:\\Users\\admin\\Desktop\\HyperVisor\\svm-vmm\\um\\hypercall.asm",
+              "RelativeToolTip": "um\\hypercall.asm",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
+              "WhenOpened": "2025-12-10T12:49:57.652Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 18,
+              "Title": "shadow_idt.c",
+              "DocumentMoniker": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\shadow_idt.c",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\shadow_idt.c",
+              "ToolTip": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\shadow_idt.c",
+              "RelativeToolTip": "..\\..\\..\\..\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\shadow_idt.c",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-29T12:44:03.311Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 19,
+              "Title": "smp.c",
+              "DocumentMoniker": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\smp.c",
+              "RelativeDocumentMoniker": "..\\..\\..\\..\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\smp.c",
+              "ToolTip": "C:\\Users\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\smp.c",
+              "RelativeToolTip": "..\\..\\..\\..\\stark\\OneDrive\\\u0420\u0430\u0431\u043E\u0447\u0438\u0439 \u0441\u0442\u043E\u043B\\svm-vmm\\smp.c",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000423|",
+              "WhenOpened": "2025-11-29T12:44:00.306Z"
             }
           ]
         }

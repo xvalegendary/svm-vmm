@@ -103,7 +103,7 @@ VOID StealthCleanVmcb(VCPU* V)
 
     VMCB_CONTROL_AREA* c = VmcbControl(V->Vmcb);
 
-    c->VmcbCleanBits = 0xFFFFFFFFFFFFFFFFULL;
+    c->VmcbClean = 0xFFFFFFFFUL;
 }
 
 

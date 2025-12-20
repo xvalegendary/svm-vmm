@@ -10,7 +10,7 @@
 #define PAGE_SIZE 0x1000
 #endif
 
-extern VOID VmrunAsm(UINT64 VmcbPa);
+extern VOID VmrunAsm(PVOID GuestRegs, UINT64 VmcbPa);
 extern VOID GuestEntry();
 
 #define MSRPM_SIZE      0x6000
@@ -67,7 +67,11 @@ static PVOID AllocAligned(SIZE_T size, PHYSICAL_ADDRESS* pa)
     PHYSICAL_ADDRESS skip = { 0 };
 
     PVOID mem = MmAllocateContiguousMemorySpecifyCache(size, low, high, skip, MmCached);
-    if (!mem) return NULL;
+    if (!mem)
+    {
+        DbgPrint("SVM-HV: MmAllocateContiguousMemorySpecifyCache(%llu) failed\n", (UINT64)size);
+        return NULL;
+    }
 
     RtlZeroMemory(mem, size);
     *pa = MmGetPhysicalAddress(mem);
@@ -125,30 +129,30 @@ static VOID SetupGuest(VCPU* V)
     s->Rsp = (UINT64)V->GuestStack + V->GuestStackSize - 0x20;
     s->Rflags = 0x2;
 
-    s->CsSelector = 0x10;
-    s->CsAttributes = 0xA09B;
-    s->CsLimit = 0xFFFFFFFF;
-    s->CsBase = 0;
+    s->Cs.Selector = 0x10;
+    s->Cs.Attributes = 0xA09B;
+    s->Cs.Limit = 0xFFFFFFFF;
+    s->Cs.Base = 0;
 
-    s->SsSelector = 0x18;
-    s->SsAttributes = 0xC093;
-    s->SsLimit = 0xFFFFFFFF;
-    s->SsBase = 0;
+    s->Ss.Selector = 0x18;
+    s->Ss.Attributes = 0xC093;
+    s->Ss.Limit = 0xFFFFFFFF;
+    s->Ss.Base = 0;
 
-    s->DsSelector = 0x18;
-    s->DsAttributes = 0xC093;
-    s->DsLimit = 0xFFFFFFFF;
-    s->DsBase = 0;
+    s->Ds.Selector = 0x18;
+    s->Ds.Attributes = 0xC093;
+    s->Ds.Limit = 0xFFFFFFFF;
+    s->Ds.Base = 0;
 
-    s->EsSelector = 0x18;
-    s->EsAttributes = 0xC093;
-    s->EsLimit = 0xFFFFFFFF;
-    s->EsBase = 0;
+    s->Es.Selector = 0x18;
+    s->Es.Attributes = 0xC093;
+    s->Es.Limit = 0xFFFFFFFF;
+    s->Es.Base = 0;
 
-    s->GdtrBase = 0;
-    s->GdtrLimit = 0;
-    s->IdtrBase = 0;
-    s->IdtrLimit = 0;
+    s->Gdtr.Base = 0;
+    s->Gdtr.Limit = 0;
+    s->Idtr.Base = 0;
+    s->Idtr.Limit = 0;
 
     s->Cr0 = __readcr0() | 0x80000001ULL;
     s->Cr4 = __readcr4();
@@ -169,16 +173,19 @@ static VOID SetupControls(VCPU* V)
     RtlZeroMemory(c, sizeof(*c));
 
     c->GuestAsid = 1;
-    c->VmcbCleanBits = 0;
+    c->VmcbClean = 0;
 
-    c->InterceptInstruction1 =
-        (1 << 0) |  // CPUID
-        (1 << 2);   // VMMCALL
+    c->Intercepts[SVM_INTERCEPT_WORD3] =
+        SVM_INTERCEPT_CPUID |
+        SVM_INTERCEPT_HLT;
+
+    c->Intercepts[SVM_INTERCEPT_WORD4] = SVM_INTERCEPT_VMMCALL;
 
     c->MsrpmBasePa = V->MsrpmPa.QuadPart;
     c->IopmBasePa = V->IopmPa.QuadPart;
 
-    c->NptControl = 1;
+    c->NestedControl = SVM_NESTED_CTL_NP_ENABLE;
+    c->NestedCr3 = V->Npt.Pml4Pa.QuadPart;
 
    
     c->TscOffset = V->CloakedTscOffset;
@@ -196,14 +203,46 @@ NTSTATUS SvmInit(VCPU** Out)
     SvmEnable();
 
     VCPU* V = ExAllocatePoolWithTag(NonPagedPoolNx, sizeof(VCPU), 'VCPU');
+    if (!V)
+        return HV_STATUS_ALLOC_VCPU;
+
     RtlZeroMemory(V, sizeof(*V));
 
-    if (!NT_SUCCESS(st = AllocHostSave(V))) goto fail;
-    if (!NT_SUCCESS(st = AllocVmcb(V))) goto fail;
-    if (!NT_SUCCESS(st = AllocGuestStack(V))) goto fail;
-    if (!NT_SUCCESS(st = AllocMsrpm(V))) goto fail;
-    if (!NT_SUCCESS(st = AllocIopm(V))) goto fail;
-    if (!NT_SUCCESS(st = NptInitialize(&V->Npt))) goto fail;
+    if (!NT_SUCCESS(st = AllocHostSave(V)))
+    {
+        DbgPrint("SVM-HV: AllocHostSave failed: 0x%X\n", st);
+        st = HV_STATUS_ALLOC_HOSTSAVE;
+        goto fail;
+    }
+    if (!NT_SUCCESS(st = AllocVmcb(V)))
+    {
+        DbgPrint("SVM-HV: AllocVmcb failed: 0x%X\n", st);
+        st = HV_STATUS_ALLOC_VMCB;
+        goto fail;
+    }
+    if (!NT_SUCCESS(st = AllocGuestStack(V)))
+    {
+        DbgPrint("SVM-HV: AllocGuestStack failed: 0x%X\n", st);
+        st = HV_STATUS_ALLOC_GUEST_STACK;
+        goto fail;
+    }
+    if (!NT_SUCCESS(st = AllocMsrpm(V)))
+    {
+        DbgPrint("SVM-HV: AllocMsrpm failed: 0x%X\n", st);
+        st = HV_STATUS_ALLOC_MSRPM;
+        goto fail;
+    }
+    if (!NT_SUCCESS(st = AllocIopm(V)))
+    {
+        DbgPrint("SVM-HV: AllocIopm failed: 0x%X\n", st);
+        st = HV_STATUS_ALLOC_IOPM;
+        goto fail;
+    }
+    if (!NT_SUCCESS(st = NptInitialize(&V->Npt)))
+    {
+        DbgPrint("SVM-HV: NptInitialize failed: 0x%X\n", st);
+        goto fail;
+    }
 
     SetupGuest(V);
     SetupControls(V);
@@ -223,7 +262,7 @@ fail:
 NTSTATUS SvmLaunch(VCPU* V)
 {
     __try {
-        VmrunAsm(V->VmcbPa.QuadPart);
+        VmrunAsm(&V->GuestRegs, V->VmcbPa.QuadPart);
     }
     __except (EXCEPTION_EXECUTE_HANDLER) {
         return GetExceptionCode();

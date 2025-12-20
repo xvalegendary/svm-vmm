@@ -84,8 +84,8 @@ VOID ShadowIdtCommonHandler(VCPU* V, UINT64 vector, UINT64 errorCode)
     VMCB_CONTROL_AREA* c = VmcbControl(V->Vmcb);
     VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
 
-    if (c->Nrip)
-        s->Rip = c->Nrip;
+    if (c->NextRip)
+        s->Rip = c->NextRip;
     else
         s->Rip += 2;
 }
@@ -115,8 +115,8 @@ VOID ShadowIdtInitialize(VCPU* V)
   
     VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
 
-    s->IdtrBase = g_ShadowIdtr.Base;
-    s->IdtrLimit = g_ShadowIdtr.Limit;
+    s->Idtr.Base = g_ShadowIdtr.Base;
+    s->Idtr.Limit = g_ShadowIdtr.Limit;
 
     DbgPrint("HV: Shadow IDT installed at 0x%llx\n", g_ShadowIdtr.Base);
 }
@@ -126,8 +126,8 @@ VOID ShadowIdtDisable(VCPU* V)
 {
     VMCB_STATE_SAVE_AREA* s = VmcbState(V->Vmcb);
 
-    s->IdtrBase = 0;
-    s->IdtrLimit = 0;
+    s->Idtr.Base = 0;
+    s->Idtr.Limit = 0;
 
     DbgPrint("HV: Shadow IDT disabled\n");
 }

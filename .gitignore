@@ -1,2 +1,24 @@
-**/.vs/
-**/x64/
+.vs/
+bin/
+debug/
+x86/
+x64/
+release/
+obj/
+
+# exclude binaries
+*.exe
+*.dll
+*.pdb
+*.idb
+*.obj
+
+# exclude personal settings
+*.vcxproj.user
+*.vcxproj.filters
+*.code-workspace
+*user-definitions.h
+
+NewStuff/
+*.ps1
+*.log
